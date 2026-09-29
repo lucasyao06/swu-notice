@@ -1,0 +1,32 @@
+# Dependencies and builds
+node_modules/
+dist/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.cache/
+.vite/
+coverage/
+playwright-report/
+test-results/
+# All runtime databases, crawl caches, user data and logs
+*.sqlite*
+*.db
+*.db-*
+*.log
+*.pid
+swu-notice-monitor/data/*
+!swu-notice-monitor/data/sites.json
+# Local configuration and editor/system files
+.env
+.env.*
+!.env.example
+!*.env.example
+.DS_Store
+.idea/
+.vscode/
+# Generated QA captures
+**/docs/*.png
+**/docs/*.json

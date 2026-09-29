@@ -1,0 +1,43 @@
+/* Night is a complete dark theme; daylight themes retain their own palette. */
+.app.light-moonlight{color-scheme:dark;color:#e0e6ef;--blue:#81afff;--muted:#a2afc2;--line:#ffffff12}
+.light-moonlight .ambient-moonlight .ambient-wash{background:linear-gradient(135deg,#050609fa,#090c12f5 65%,#10151ef7)}
+.light-moonlight .ambient-moonlight .ambient-rays{background:radial-gradient(ellipse at 85% 0%,#9bb9e92e,transparent 52%),linear-gradient(125deg,transparent 35%,#a4c7ff0e 41%,transparent 53%);opacity:.5}
+.app.light-moonlight .school-logo{filter:brightness(0) invert(1);opacity:.88}
+.app.light-moonlight .hero-photo{filter:brightness(.45) saturate(.6);opacity:.32}
+.app.light-moonlight :is(.product,.greeting strong,.hero h1,.section-head h2,.workspace-heading h2,.notice-title,.subscription-row strong,.settings-page-body h3,.setting-row strong,.section-label h3,.unit-identity strong,.inbox-list strong,.dialog-content h2,.dialog-content h3){color:#e1e7f0}
+.app.light-moonlight :is(.product small,.greeting small,.hero-copy p,.metadata,.notice-copy p,.workspace-heading p,.workspace-hint,.section-label>span,.setting-row p,.settings-about p,.source-categories>p,.source-categories h3,.unit-identity small,.source-table-row time,.source-table-head,.source-disclaimer,.workspace-actions>span,.pagination,.date-card-lunar,.date-card-heading,.subscription-row>span:not(.small-icon),.subscription-tags>small,.timeline time,.update-note,.dialog-meta,.dialog-summary,.muted,footer,.keyword-editor small,.delivery-preference small,.delivery-preference label,.edit-state){color:#a2afc2}
+.app.light-moonlight :is(.panel,.glass,.notice-center){background:#12161deb;border-color:#ffffff14;box-shadow:none}
+.app.light-moonlight :is(.priority .notice,.priority .notice:first-child,.priority .notice:not(:first-child),.latest-list,.latest-list .notice){background:#171c24;color:#e0e6ef;border-color:#ffffff10}
+.app.light-moonlight :is(.side-panel.liquid-panel,.date-card.liquid-panel,.search-glass,.dock){background:#161c2680;border-color:#b7c9e52b;box-shadow:none}
+.app.light-moonlight :is(.side-panel.liquid-panel,.date-card.liquid-panel,.dock):hover{background:#1b233080}
+.app.light-moonlight .lens .lens-surface>.glass{background:none;box-shadow:none!important}
+.app.light-moonlight :is(.subscription-inner,.subscription-tags,.culture){background:#11172080;border-color:#ffffff12}
+.app.light-moonlight :is(.dock>button,.icon-button,.timeline button,.date-card-heading svg){color:#a1b2cc}
+.app.light-moonlight .dock>button.active{background:#30466385;color:#91baff;box-shadow:none}
+.app.light-moonlight .dock>button:hover{background:#ffffff0d}
+.app.light-moonlight :is(.unit-icon,.small-icon,.unit-mark){background:#253147;color:#a0c1f3}
+.app.light-moonlight :is(.tag,.subscription-tags button,.prototype-label,.tabs button.selected){background:#28364b;color:#accbfa;border-color:#405674}
+.app.light-moonlight .favorite.saved{color:#efb75e}
+.app.light-moonlight :is(.source-follow,.secondary){background:#202b3b;color:#b0c9ee;border-color:#435269}
+.app.light-moonlight .primary{background:#376fcd;color:#fff;box-shadow:none}
+.app.light-moonlight :is(.primary:hover){background:#447fdf}
+.app.light-moonlight :is(input,textarea,select,.field,.directory-search,.keyword-editor textarea,.source-toolbar select,.mode-select){background:#171e29;color:#d7e0ed;border-color:#52647b70}
+.app.light-moonlight :is(.search-glass input,.directory-search input){background:transparent;color:#d7e0ed}
+.app.light-moonlight :is(input,textarea)::placeholder{color:#96a5ba}
+.app.light-moonlight :is(.workspace-segment,.category-picks button){background:#161e2a;color:#a8b5c9;border-color:#ffffff18}
+.app.light-moonlight :is(.workspace-segment button,.source-categories nav button,.tabs button){color:#a7b5c9}
+.app.light-moonlight :is(.workspace-segment button[aria-pressed=true],.category-picks button[aria-pressed=true],.source-categories nav button[aria-pressed=true]){background:#293b56;color:#b0d0ff;border-color:#6c8cb954;box-shadow:none}
+.app.light-moonlight :is(.keyword-editor>label,.interest-fields h4,.source-follow.is-following){color:#b5c3d7}
+.app.light-moonlight .followed-unit:hover{background:#ffffff06}
+.app.light-moonlight :is(.workspace-heading,.workspace-actions,.interest-section,.source-categories,.source-table-head,.source-table-row,.source-disclaimer,.followed-unit,.delivery-preference,.setting-row,.subscription-row,.update-note,.inbox-list button){border-color:#ffffff13}
+.app.light-moonlight .collection-state.normal{color:#7bcdb0}.app.light-moonlight .collection-state.delayed{color:#e4bb72}.app.light-moonlight .collection-state.failed{color:#ef9da7}.app.light-moonlight .collection-state.inactive{color:#a8b5c9}
+.app.light-moonlight .edit-state.is-dirty{color:#e4bb72}
+.app.light-moonlight dialog{background:#141b25f5;border-color:#ffffff24;color:#e0e6ef;box-shadow:0 24px 70px #0008}
+.app.light-moonlight dialog::backdrop{background:#0009}
+.app.light-moonlight :is(.demo-note,.connection-error,.loading-status){background:#202b3b;color:#c2d0e3;border-color:#ffffff20}
+.app.light-moonlight .culture blockquote{color:#d4dfed}.app.light-moonlight .culture p{color:#a5b7cf}
+.app.light-moonlight .switch{background:#41516a}.app.light-moonlight .switch.on{background:#487cca}
+.app.light-moonlight .pagination button{background:#202b3b;color:#b0c9ee;border-color:#435269}
+.app.light-moonlight .timeline:before{background:#42536c}.app.light-moonlight .timeline i{border-color:#344a6d;box-shadow:0 0 0 1px #516c96}
+.app.light-moonlight .avatar{background:#2c3b52;color:#d4e3f9}
+.app.light-moonlight .wave-slider input[type=range]{background:transparent;border:0}

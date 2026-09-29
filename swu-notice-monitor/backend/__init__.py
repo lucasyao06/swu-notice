@@ -1,0 +1,1 @@
+"""SWU notice monitor backend."""

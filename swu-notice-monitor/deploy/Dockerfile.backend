@@ -1,0 +1,9 @@
+FROM python:3.12-slim
+ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
+WORKDIR /app
+RUN useradd --uid 10001 --create-home monitor && mkdir /state && chown monitor:monitor /state
+COPY backend /app/backend
+COPY data/sites.json /app/data/sites.json
+USER monitor
+EXPOSE 8765
+CMD ["python", "-m", "backend.server", "--host", "0.0.0.0", "--db", "/state/monitor.sqlite3"]

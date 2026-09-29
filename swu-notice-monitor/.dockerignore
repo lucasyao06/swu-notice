@@ -1,0 +1,12 @@
+.git
+**/__pycache__
+**/*.pyc
+data/*.sqlite*
+data/*.xlsx
+docs
+tests
+design
+*.log
+
+**/node_modules
+glass-build

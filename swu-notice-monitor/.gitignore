@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+data/*.sqlite3*
+*.log
+.DS_Store
+
+node_modules/

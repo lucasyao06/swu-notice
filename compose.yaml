@@ -1,0 +1,42 @@
+services:
+  backend:
+    build:
+      context: ./swu-notice-monitor
+      dockerfile: deploy/Dockerfile.backend
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 60s
+    environment:
+      SWU_NETWORK_MODE: ${SWU_NETWORK_MODE:-direct}
+      SWU_HTTPS_PROXY: ${SWU_HTTPS_PROXY:-}
+      SWU_ALLOWED_ORIGINS: ${SWU_ALLOWED_ORIGINS:-http://localhost:8080,http://127.0.0.1:8080}
+    volumes:
+      - monitor-data:/state
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.build_opener(urllib.request.ProxyHandler({})).open('http://127.0.0.1:8765/api/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+  frontend:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${SWU_WEB_PORT:-8080}:80"
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+volumes:
+  monitor-data:

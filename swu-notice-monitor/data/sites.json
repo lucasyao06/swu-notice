@@ -1,0 +1,803 @@
+[
+  {
+    "id": 1,
+    "name": "党政办公室（党委办公室、校长办公室）",
+    "url": "https://dzb.swu.edu.cn/",
+    "type": "职能部门",
+    "group": "机关部门",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 2,
+    "name": "党委组织部（党校办公室）",
+    "url": "https://zzb.swu.edu.cn/",
+    "type": "职能部门",
+    "group": "机关部门",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 3,
+    "name": "党委宣传部、党委网络工作部",
+    "url": "https://dwxcbwlgzb.swu.edu.cn/",
+    "type": "职能部门",
+    "group": "机关部门",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 4,
+    "name": "党委统战部",
+    "url": "https://tzhb.swu.edu.cn/",
+    "type": "职能部门",
+    "group": "机关部门",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 5,
+    "name": "纪委办公室、监察处，巡察工作办公室",
+    "url": "https://jwjc.swu.edu.cn/",
+    "type": "职能部门",
+    "group": "机关部门",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 6,
+    "name": "工会、教代会",
+    "url": "https://xgh.swu.edu.cn/",
+    "type": "职能部门",
+    "group": "机关部门",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": "本次访问转至IP认证提示；不能据此认定网站失效。"
+  },
+  {
+    "id": 7,
+    "name": "团委",
+    "url": "https://gqt.swu.edu.cn/",
+    "type": "职能部门",
+    "group": "机关部门",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": "网址由学校目录确认；本次工具未成功读取页面。"
+  },
+  {
+    "id": 8,
+    "name": "机关党委",
+    "url": "https://jgdw.swu.edu.cn/",
+    "type": "职能部门",
+    "group": "机关部门",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 9,
+    "name": "发展规划与学科建设部、学术委员会办公室",
+    "url": "https://fgb.swu.edu.cn/",
+    "type": "职能部门",
+    "group": "机关部门",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 10,
+    "name": "人力资源部、党委教师工作部（人才工作办公室）",
+    "url": "https://renshi.swu.edu.cn/",
+    "type": "职能部门",
+    "group": "机关部门",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 11,
+    "name": "本科生院（招生办公室、教学质量监控与评估中心、教师教学发展中心）",
+    "url": "https://ugs.swu.edu.cn/",
+    "type": "职能部门",
+    "group": "机关部门",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 12,
+    "name": "研究生院",
+    "url": "https://yjsyygb.swu.edu.cn/",
+    "type": "职能部门",
+    "group": "机关部门",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": "网址由学校目录确认；本次工具未成功读取页面。"
+  },
+  {
+    "id": 13,
+    "name": "党委学生工作部、学生工作处、武装部",
+    "url": "https://xsc.swu.edu.cn/",
+    "type": "职能部门",
+    "group": "机关部门",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 14,
+    "name": "社会科学处（社科联办公室）",
+    "url": "https://hssd.swu.edu.cn/",
+    "type": "职能部门",
+    "group": "机关部门",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 15,
+    "name": "科学技术发展研究院（科学中心、科协办公室）",
+    "url": "https://kfy.swu.edu.cn/",
+    "type": "职能部门",
+    "group": "机关部门",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 16,
+    "name": "社会服务处",
+    "url": "https://shfw.swu.edu.cn/",
+    "type": "职能部门",
+    "group": "机关部门",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 17,
+    "name": "国际合作与交流处、港澳台办公室",
+    "url": "https://gjc.swu.edu.cn/",
+    "type": "职能部门",
+    "group": "机关部门",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 18,
+    "name": "财务部（采购与招投标管理中心）",
+    "url": "https://cwc.swu.edu.cn/",
+    "type": "职能部门",
+    "group": "机关部门",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 19,
+    "name": "审计处",
+    "url": "https://sjc.swu.edu.cn/",
+    "type": "职能部门",
+    "group": "机关部门",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 20,
+    "name": "党委保卫部、保卫处",
+    "url": "https://bwchu.swu.edu.cn/",
+    "type": "职能部门",
+    "group": "机关部门",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 21,
+    "name": "实验室建设与设备管理处（分析测试中心、实验动物中心）",
+    "url": "https://sysbc.swu.edu.cn/",
+    "type": "职能部门",
+    "group": "机关部门",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 22,
+    "name": "信息化建设办公室",
+    "url": "https://nic.swu.edu.cn/",
+    "type": "职能部门",
+    "group": "机关部门",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 23,
+    "name": "国有资产与后勤管理处",
+    "url": "https://gzhqc.swu.edu.cn/",
+    "type": "职能部门",
+    "group": "机关部门",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 24,
+    "name": "基本建设管理处",
+    "url": "https://jjc.swu.edu.cn/",
+    "type": "职能部门",
+    "group": "机关部门",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 25,
+    "name": "离退休党委、离退休工作处（关心下一代工作委员会）",
+    "url": "https://ltxc.swu.edu.cn/",
+    "type": "职能部门",
+    "group": "机关部门",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 26,
+    "name": "荣昌校区党工委、管委会",
+    "url": "https://rcxq.swu.edu.cn/",
+    "type": "职能部门",
+    "group": "机关部门",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 27,
+    "name": "文学院",
+    "url": "https://chinese.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "人文学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 28,
+    "name": "外国语学院",
+    "url": "https://foreign.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "人文学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 29,
+    "name": "历史文化学院、民族学院",
+    "url": "https://his.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "人文学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": "两个学院名称按学校目录合并列示。"
+  },
+  {
+    "id": 30,
+    "name": "国际学院",
+    "url": "https://gjxy.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "人文学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 31,
+    "name": "马克思主义学院",
+    "url": "https://marxism.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "社会科学学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 32,
+    "name": "经济管理学院",
+    "url": "https://cem.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "社会科学学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 33,
+    "name": "国家治理学院",
+    "url": "https://gjzl.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "社会科学学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 34,
+    "name": "法学院",
+    "url": "https://law.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "社会科学学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 35,
+    "name": "商贸学院",
+    "url": "https://smxy.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "社会科学学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 36,
+    "name": "教育学部",
+    "url": "https://jyxb.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "教育科学学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 37,
+    "name": "心理学部",
+    "url": "https://psy.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "教育科学学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 38,
+    "name": "体育学院（体委）",
+    "url": "https://tyxy.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "教育科学学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 39,
+    "name": "教师教育学院",
+    "url": "https://cte.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "教育科学学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 40,
+    "name": "音乐学院",
+    "url": "https://music.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "艺术学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 41,
+    "name": "美术学院",
+    "url": "https://art.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "艺术学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 42,
+    "name": "新闻传媒学院",
+    "url": "https://xwcm.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "艺术学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 43,
+    "name": "化学化工学院",
+    "url": "https://chemistry.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "理化与材料学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 44,
+    "name": "物理科学与技术学院",
+    "url": "https://physics.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "理化与材料学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 45,
+    "name": "材料与能源学院",
+    "url": "https://fmae.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "理化与材料学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 46,
+    "name": "资源环境学院",
+    "url": "https://zihuan.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "资源环境学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 47,
+    "name": "地理科学学院",
+    "url": "https://geography.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "资源环境学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 48,
+    "name": "工程技术学院",
+    "url": "https://gcjsxy.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "工学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 49,
+    "name": "食品科学学院",
+    "url": "https://spxy.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "工学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 50,
+    "name": "数学与统计学院",
+    "url": "https://math.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "数学与信息科学学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 51,
+    "name": "计算机与信息科学学院、软件学院",
+    "url": "https://cis.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "数学与信息科学学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": "两个学院名称按学校目录合并列示。"
+  },
+  {
+    "id": 52,
+    "name": "电子信息工程学院",
+    "url": "https://ceie.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "数学与信息科学学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 53,
+    "name": "人工智能学院",
+    "url": "https://ai.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "数学与信息科学学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 54,
+    "name": "农学与生物科技学院",
+    "url": "https://agronomy.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "农学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 55,
+    "name": "植物保护学院",
+    "url": "https://zhibao.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "农学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 56,
+    "name": "园艺园林学院",
+    "url": "https://yyyl.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "农学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 57,
+    "name": "蚕桑纺织与生物质科学学院",
+    "url": "https://csfzswz.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "动物科学学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": "网址由学校目录确认；本次工具读取超时。"
+  },
+  {
+    "id": 58,
+    "name": "动物科学技术学院",
+    "url": "https://dwkj.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "动物科学学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 59,
+    "name": "动物医学院",
+    "url": "https://dwyx.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "动物科学学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 60,
+    "name": "水产学院",
+    "url": "https://scxy.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "动物科学学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 61,
+    "name": "生命科学学院",
+    "url": "https://smkxxy.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "生命科学学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 62,
+    "name": "药学院、中医药学院",
+    "url": "https://pharmacy.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "生命科学学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": "两个学院名称按学校目录合并列示。"
+  },
+  {
+    "id": 63,
+    "name": "袁隆平书院（创新创业学院、含弘学院、智慧农业学院）",
+    "url": "https://cxcy.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "拔尖创新人才培养/中外合作办学",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": "四个名称按学校目录合并为一个条目；网站标题一致。"
+  },
+  {
+    "id": 64,
+    "name": "西塔学院",
+    "url": "https://westa.swu.edu.cn/",
+    "type": "二级学院",
+    "group": "拔尖创新人才培养/中外合作办学",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 65,
+    "name": "对外联络办公室",
+    "url": "https://dwllb.swu.edu.cn/",
+    "type": "直附属单位",
+    "group": "直附属单位",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 66,
+    "name": "学生职业发展与就业服务中心",
+    "url": "https://zsjyc.swu.edu.cn/",
+    "type": "直附属单位",
+    "group": "直附属单位",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 67,
+    "name": "图书馆",
+    "url": "https://lib.swu.edu.cn/",
+    "type": "直附属单位",
+    "group": "直附属单位",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 68,
+    "name": "档案馆、校史馆、博物馆",
+    "url": "https://xddag.swu.edu.cn/",
+    "type": "直附属单位",
+    "group": "直附属单位",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 69,
+    "name": "继续教育学院（数字教育管理中心）",
+    "url": "https://sce.swu.edu.cn/",
+    "type": "直附属单位",
+    "group": "直附属单位",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": "学校目录旧入口https://www.eduwest.com/现指向本站；已读取/index.htm。"
+  },
+  {
+    "id": 70,
+    "name": "医院",
+    "url": "https://xndxyy.swu.edu.cn/",
+    "type": "直附属单位",
+    "group": "直附属单位",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 71,
+    "name": "后勤集团",
+    "url": "https://xdhqjt.swu.edu.cn/",
+    "type": "直附属单位",
+    "group": "直附属单位",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 72,
+    "name": "宜宾研究院",
+    "url": "https://ybyjy.swu.edu.cn/",
+    "type": "直附属单位",
+    "group": "直附属单位",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 73,
+    "name": "涪陵研究院",
+    "url": "https://flyjy.swu.edu.cn/",
+    "type": "直附属单位",
+    "group": "直附属单位",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 74,
+    "name": "附属中学",
+    "url": "https://www.xndxfz.com/",
+    "type": "直附属单位",
+    "group": "直附属单位",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": "网址由学校目录确认；本次工具读取超时。"
+  },
+  {
+    "id": 75,
+    "name": "附属小学",
+    "url": "https://xndxfx.swu.edu.cn/",
+    "type": "直附属单位",
+    "group": "直附属单位",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 76,
+    "name": "实验幼儿园",
+    "url": "https://yey.swu.edu.cn/",
+    "type": "直附属单位",
+    "group": "直附属单位",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 77,
+    "name": "汉语言文献研究所",
+    "url": "https://wxs.swu.edu.cn/",
+    "type": "科研机构",
+    "group": "人文学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 78,
+    "name": "中国新诗研究所",
+    "url": "https://xinshi.swu.edu.cn/",
+    "type": "科研机构",
+    "group": "人文学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 79,
+    "name": "中希文明互鉴中心",
+    "url": "https://chinesekelkip.swu.edu.cn/",
+    "type": "科研机构",
+    "group": "人文学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 80,
+    "name": "乡村振兴战略研究院",
+    "url": "https://irrs.swu.edu.cn/",
+    "type": "科研机构",
+    "group": "社会科学学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 81,
+    "name": "西南民族教育与心理研究中心",
+    "url": "https://epc.swu.edu.cn/",
+    "type": "科研机构",
+    "group": "教育科学学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 82,
+    "name": "柑桔研究所",
+    "url": "https://gjs.swu.edu.cn/",
+    "type": "科研机构",
+    "group": "农学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 83,
+    "name": "资源昆虫高效养殖与利用全国重点实验室",
+    "url": "https://sklsgb.swu.edu.cn/",
+    "type": "科研机构",
+    "group": "动物科学学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 84,
+    "name": "前沿交叉学科研究院、生物学研究中心",
+    "url": "https://biosci.swu.edu.cn/",
+    "type": "科研机构",
+    "group": "生命科学学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": "研究院与研究中心按学校目录合并列示。"
+  },
+  {
+    "id": 85,
+    "name": "发育生物学与再生医学研究中心",
+    "url": "https://devreg.swu.edu.cn/",
+    "type": "科研机构",
+    "group": "生命科学学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 86,
+    "name": "医学研究院",
+    "url": "https://mri.swu.edu.cn/",
+    "type": "科研机构",
+    "group": "生命科学学部",
+    "source": "https://www.swu.edu.cn/zzjg/jxky.htm",
+    "note": ""
+  },
+  {
+    "id": 87,
+    "name": "资产经营有限公司",
+    "url": "https://zcgs.swu.edu.cn/",
+    "type": "企业单位",
+    "group": "企业单位",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  },
+  {
+    "id": 88,
+    "name": "出版集团",
+    "url": "https://www.xdcbs.com/",
+    "type": "企业单位",
+    "group": "企业单位",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": "网址由学校目录确认；本次工具读取超时。"
+  },
+  {
+    "id": 89,
+    "name": "基础教育投资管理有限公司",
+    "url": "https://jcjyjt.swu.edu.cn/",
+    "type": "企业单位",
+    "group": "企业单位",
+    "source": "https://www.swu.edu.cn/zzjg/glfw.htm",
+    "note": ""
+  }
+]
