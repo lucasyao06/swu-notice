@@ -4,6 +4,7 @@ COPY swu-glass-prototype/package*.json ./
 RUN npm ci
 COPY swu-glass-prototype/ ./
 COPY swu-notice-monitor/data/competitions.json /app/swu-notice-monitor/data/competitions.json
+COPY swu-notice-monitor/data/college_competition_rules.json /app/swu-notice-monitor/data/college_competition_rules.json
 RUN npm run build
 FROM nginx:stable-alpine
 COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf

@@ -336,8 +336,8 @@ def collect_source(store, source, fetch=None, budget=None):
     return {'source':source['id'],'processed':processed,'inserted':inserted,'pending':len(queue)+len(errors),'status':status}
 
 
-def run_collection(store, competition_id=None):
-    sources = store.sources(competition_id)
+def run_collection(store, competition_id=None, college_id=None):
+    sources = store.sources(competition_id,college_id)
     results = []
     try:
         def collect_batches(source):
@@ -356,20 +356,26 @@ def run_collection(store, competition_id=None):
                 except Exception as exc:
                     store.checkpoint(source['id'],source['checkpoint'],'失败',str(exc)[:400]); result={'source':source['id'],'status':'失败'}
                 results.append(result)
-                store.progress({'competition_id':competition_id,'completed':len(results),'total':len(sources),
+                store.progress({'competition_id':competition_id,'college_id':college_id,'completed':len(results),'total':len(sources),
                                 'stopping':store.cancel.is_set(),'results':results})
     finally:
-        store.progress({'competition_id':competition_id,'completed':len(results),'total':len(sources),
+        store.progress({'competition_id':competition_id,'college_id':college_id,'completed':len(results),'total':len(sources),
                         'stopping':store.cancel.is_set(),'results':results},finished=True)
 
 
-def start_collection(store, competition_id=None):
+def start_collection(store, competition_id=None, college_id=None):
+    if college_id is not None:
+        store.college(college_id)
+        if competition_id and not store.reference(competition_id,college_id)['reference_rules']:
+            raise ValueError('所选赛事未在当前学院截图列名，请按单赛事或全平台采集')
     if competition_id is not None and competition_id not in {x['id'] for x in store.catalog['items']}:
         raise ValueError('赛事不存在')
     if competition_id and not store.sources(competition_id):
         raise ValueError('此赛事尚未核验公开采集入口')
-    if not store.claim(competition_id): return False
-    store.thread = threading.Thread(target=run_collection,args=(store,competition_id),daemon=True)
+    if college_id and not store.sources(college_id=college_id):
+        raise ValueError('此学院赛事尚未核验公开采集入口')
+    if not store.claim(competition_id,college_id): return False
+    store.thread = threading.Thread(target=run_collection,args=(store,competition_id,college_id),daemon=True)
     try: store.thread.start()
     except Exception:
         store.progress({'competition_id':competition_id},finished=True); raise
@@ -383,7 +389,7 @@ def scheduler_loop(store, stop):
         elapsed=(datetime.now().astimezone()-datetime.fromisoformat(state['last_finished'])).total_seconds()
         next_run+=max(0,store.settings()['interval_minutes']*60-elapsed)
     if store.resume_requested:
-        start_collection(store,store.resume_id)
+        start_collection(store,store.resume_id,getattr(store,'resume_college_id',None))
     while not stop.wait(5):
         settings = store.settings()
         if settings['scheduler_enabled'] and time.monotonic()>=next_run:

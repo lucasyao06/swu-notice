@@ -10,7 +10,7 @@ def now():
 
 
 class CompetitionStore:
-    def __init__(self, campus_store, catalog_path=None):
+    def __init__(self, campus_store, catalog_path=None, rules_path=None):
         self.db = campus_store.db
         self.lock = campus_store._lock
         self.cancel = threading.Event()
@@ -18,9 +18,16 @@ class CompetitionStore:
         self.catalog_path = Path(catalog_path or Path(__file__).resolve().parents[1] / 'data/competitions.json')
         self.catalog = json.loads(self.catalog_path.read_text(encoding='utf-8'))
         self.policy = self.catalog['policy']
+        self.rules_config = json.loads(Path(rules_path or self.catalog_path.with_name('college_competition_rules.json')).read_text(encoding='utf-8'))
+        self.default_college = self.rules_config['default_college']
         with self.lock:
             self.db.executescript('''
                 CREATE TABLE IF NOT EXISTS competitions(id TEXT PRIMARY KEY, metadata TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS competition_colleges(id TEXT PRIMARY KEY, metadata TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS competition_college_rules(
+                    college_id TEXT NOT NULL REFERENCES competition_colleges(id),
+                    competition_id TEXT NOT NULL REFERENCES competitions(id), category TEXT NOT NULL,
+                    metadata TEXT NOT NULL, PRIMARY KEY(college_id,competition_id));
                 CREATE TABLE IF NOT EXISTS competition_sources(
                     id TEXT PRIMARY KEY, competition_id TEXT NOT NULL REFERENCES competitions(id),
                     config TEXT NOT NULL, status TEXT NOT NULL DEFAULT '未检查', error TEXT NOT NULL DEFAULT '',
@@ -51,6 +58,7 @@ class CompetitionStore:
             progress = json.loads(previous['progress'])
             self.resume_requested = bool(previous['resume'] or (previous['running'] and not progress.get('stopping')))
             self.resume_id = progress.get('competition_id')
+            self.resume_college_id = progress.get('college_id')
             self.db.execute('UPDATE competition_crawl_state SET running=0,resume=0')
             self.db.execute('UPDATE competition_sources SET active=0')
             for item in self.catalog['items']:
@@ -66,7 +74,40 @@ class CompetitionStore:
                     self.db.execute('''INSERT INTO competition_sources(id,competition_id,config) VALUES(?,?,?)
                         ON CONFLICT(id) DO UPDATE SET config=excluded.config,active=1''',
                         (source_id, item['id'], json.dumps(config, ensure_ascii=False)))
+            for college in self.rules_config['colleges']:
+                self.db.execute('INSERT INTO competition_colleges VALUES(?,?) ON CONFLICT(id) DO UPDATE SET metadata=excluded.metadata',
+                                (college['id'], json.dumps(college, ensure_ascii=False)))
+            for rule in self.rules_config['rules']:
+                self.db.execute('INSERT INTO competition_college_rules VALUES(?,?,?,?) ON CONFLICT(college_id,competition_id) DO UPDATE SET category=excluded.category,metadata=excluded.metadata',
+                                (rule['college_id'],rule['competition_id'],rule['category'],json.dumps(rule,ensure_ascii=False)))
             self.db.commit()
+
+    def colleges(self):
+        return {'items': self.rules_config['colleges'], 'default_college': self.default_college}
+
+    def college(self, college_id=None):
+        college_id = college_id or self.default_college
+        result = next((x for x in self.rules_config['colleges'] if x['id']==college_id),None)
+        if not result:
+            raise ValueError('学院不存在')
+        return result
+
+    def reference(self, competition_id, college_id=None):
+        college = self.college(college_id)
+        with self.lock:
+            row = self.db.execute('SELECT metadata FROM competition_college_rules WHERE college_id=? AND competition_id=?',
+                                  (college['id'],competition_id)).fetchone()
+        rules = [json.loads(row[0])] if row else []
+        return {'college_id':college['id'], 'reference_rules':rules, 'reference_label':college['policy']['label'],
+                'recognition_note':'' if rules else '当前学院截图未列名，分值认定待确认'}
+
+    def context(self, college_id=None, scope='college', category=''):
+        college = self.college(college_id)
+        if scope not in ('college','all'):
+            raise ValueError('scope 只能为 college 或 all')
+        if category and category not in college['categories']:
+            raise ValueError('当前学院没有此规则类别')
+        return college
 
     def subscriptions(self):
         with self.lock:
@@ -90,26 +131,37 @@ class CompetitionStore:
                 raise
         return self.subscriptions()
 
-    def sources(self, competition_id=None):
+    def sources(self, competition_id=None, college_id=None):
+        conditions, args = ['active=1'], []
+        if competition_id:
+            conditions.append('competition_id=?'); args.append(competition_id)
+        if college_id:
+            college = self.college(college_id)
+            conditions.append('competition_id IN (SELECT competition_id FROM competition_college_rules WHERE college_id=?)')
+            args.append(college['id'])
         with self.lock:
-            rows = self.db.execute('SELECT * FROM competition_sources WHERE active=1' +
-                                   (' AND competition_id=?' if competition_id else '') + ' ORDER BY id',
-                                   (competition_id,) if competition_id else ()).fetchall()
+            rows = self.db.execute('SELECT * FROM competition_sources WHERE '+' AND '.join(conditions)+' ORDER BY id',args).fetchall()
             return [{**dict(r), 'config': json.loads(r['config']), 'checkpoint': json.loads(r['checkpoint'])} for r in rows]
 
-    def list_catalog(self, q='', group=''):
+    def list_catalog(self, q='', group='', college_id=None, scope='college', category=''):
+        college = self.context(college_id,scope,category)
         followed = set(self.subscriptions()['competitions'])
         sources = self.sources()
         with self.lock:
             counts = dict(self.db.execute('SELECT competition_id,COUNT(*) FROM competition_notices GROUP BY competition_id'))
         items = []
         for original in self.catalog['items']:
+            reference = self.reference(original['id'],college['id'])
+            rules = reference['reference_rules']
+            if (scope=='college' and not rules) or (category and not any(r['category']==category for r in rules)):
+                continue
             if group and original['group'] != group:
                 continue
             if q.casefold() not in ' '.join([original['name'], original.get('current_name') or '', *original.get('aliases', [])]).casefold():
                 continue
-            item = {**original, 'awards': original.get('awards',self.policy['awards']),
-                    'scores': original.get('scores',self.policy['score_groups'].get(original.get('score_group'))),
+            default = next((x for x in rules[0]['levels'] if x['name']==rules[0]['default_level']),{}) if rules else {}
+            item = {**original, **reference, 'awards':default.get('awards',[]), 'scores':default.get('scores',[]),
+                    'restriction': original.get('restriction','') if college['id']==self.default_college else '',
                     'followed': original['id'] in followed, 'notice_count': counts.get(original['id'],0)}
             registered = [s for s in sources if s['competition_id'] == item['id']]
             item['official_url'] = original.get('official_url') or (registered[0]['config']['url'] if registered else None)
@@ -119,7 +171,7 @@ class CompetitionStore:
             item['sources'] = [{**s['config'], 'id': s['id'], 'status': s['status'], 'error': s['error'],
                                 'baseline': bool(s['baseline']), 'last_checked': s['last_checked']} for s in registered]
             items.append(item)
-        return {'items': items, 'total': len(items), 'policy': self.policy}
+        return {'items': items, 'total': len(items), 'policy':{**self.policy,**college['policy']}, 'college':college, 'scope':scope}
 
     @staticmethod
     def page_args(limit, offset):
@@ -136,12 +188,18 @@ class CompetitionStore:
         item['attachments'] = json.loads(item['attachments'])
         return item
 
-    def list_notices(self, q='', competition='', kind='', tab='all', limit=10, offset=0):
+    def list_notices(self, q='', competition='', kind='', tab='all', limit=10, offset=0, college_id=None, scope='college', category=''):
+        college = self.context(college_id,scope,category)
         self.page_args(limit, offset)
         if tab not in ('all','following','favorite','unread'):
             raise ValueError('无效 tab 参数')
         conditions = ["(n.published_at='' OR substr(n.published_at,1,10)>=?)"]
         args = [(date.today()-timedelta(days=365)).isoformat()]
+        # Personal records stay global even when browsing another college.
+        if (scope=='college' and tab not in ('following','favorite')) or category:
+            conditions.append('EXISTS (SELECT 1 FROM competition_college_rules r WHERE r.competition_id=n.competition_id AND r.college_id=?'+(' AND r.category=?' if category else '')+')')
+            args.append(college['id'])
+            if category: args.append(category)
         if q:
             conditions.append('(n.title LIKE ? OR c.metadata LIKE ?)'); args += ['%'+q+'%']*2
         for field, value in [('competition_id',competition),('kind',kind)]:
@@ -158,13 +216,16 @@ class CompetitionStore:
             total = self.db.execute('SELECT COUNT(*)'+joined, args).fetchone()[0]
             rows = self.db.execute("SELECT n.*,json_extract(c.metadata,'$.name') AS competition_name"+joined+
                 ' ORDER BY n.published_at DESC,n.id DESC LIMIT ? OFFSET ?', [*args,limit,offset]).fetchall()
-        return {'items':[self.notice(r) for r in rows], 'total':total}
+        return {'items':[{**self.notice(r),**self.reference(r['competition_id'],college['id'])} for r in rows], 'total':total}
 
-    def get_notice(self, id):
+    def get_notice(self, id, college_id=None):
+        self.college(college_id)
         with self.lock:
-            return self.notice(self.db.execute("SELECT n.*,json_extract(c.metadata,'$.name') AS competition_name FROM competition_notices n JOIN competitions c ON c.id=n.competition_id WHERE n.id=?", (id,)).fetchone())
+            item = self.notice(self.db.execute("SELECT n.*,json_extract(c.metadata,'$.name') AS competition_name FROM competition_notices n JOIN competitions c ON c.id=n.competition_id WHERE n.id=?", (id,)).fetchone())
+        return {**item,**self.reference(item['competition_id'],college_id)} if item else None
 
-    def update_notice(self, id, changes):
+    def update_notice(self, id, changes, college_id=None):
+        self.college(college_id)
         if not changes or not set(changes) <= {'read','favorite'} or any(type(x) is not bool for x in changes.values()):
             raise ValueError('只支持 read/favorite 布尔值')
         with self.lock:
@@ -172,7 +233,7 @@ class CompetitionStore:
             if changes.get('read'):
                 self.db.execute('UPDATE competition_messages SET read=1 WHERE notice_id=?',(id,))
             self.db.commit()
-        return self.get_notice(id)
+        return self.get_notice(id,college_id)
 
     def upsert_notice(self, source, item):
         published = item.get('published_at','')
@@ -199,7 +260,8 @@ class CompetitionStore:
             self.db.commit()
         return self.get_notice(id), prior is None
 
-    def list_messages(self, limit=10, offset=0):
+    def list_messages(self, limit=10, offset=0, college_id=None):
+        self.college(college_id)
         self.page_args(limit, offset)
         with self.lock:
             total, unread = self.db.execute('SELECT COUNT(*),COALESCE(SUM(read=0),0) FROM competition_messages').fetchone()
@@ -207,7 +269,7 @@ class CompetitionStore:
                 json_extract(c.metadata,'$.name') AS competition_name FROM competition_messages m
                 JOIN competition_notices n ON n.id=m.notice_id JOIN competitions c ON c.id=n.competition_id
                 ORDER BY m.id DESC LIMIT ? OFFSET ?''',(limit,offset)).fetchall()
-        return {'items':[{**dict(r),'read':bool(r['read'])} for r in rows], 'total':total,'unread':unread}
+        return {'items':[{**dict(r),'read':bool(r['read']),**self.reference(r['competition_id'],college_id)} for r in rows], 'total':total,'unread':unread}
 
     def read_messages(self, id=None):
         with self.lock:
@@ -232,13 +294,13 @@ class CompetitionStore:
             r = self.db.execute('SELECT * FROM competition_crawl_state').fetchone()
             return {**json.loads(r['progress']), 'running':bool(r['running']), 'last_finished':r['last_finished']}
 
-    def claim(self, competition_id):
+    def claim(self, competition_id, college_id=None):
         with self.lock:
             if self.crawl_state()['running']:
                 return False
             self.cancel.clear()
             self.db.execute('UPDATE competition_crawl_state SET running=1,resume=0,progress=?',
-                (json.dumps({'competition_id':competition_id,'completed':0,'total':len(self.sources(competition_id)),'stopping':False}),))
+                (json.dumps({'competition_id':competition_id,'college_id':college_id,'completed':0,'total':len(self.sources(competition_id,college_id)),'stopping':False}),))
             self.db.commit()
             return True
 
