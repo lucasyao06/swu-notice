@@ -90,3 +90,9 @@ docker compose up -d --build
 依赖版本由 `package-lock.json` 锁定，首次安装需要联网。前端运行资源由本地服务提供，不依赖 CDN。
 
 校园图片、校徽和第三方代码的说明位于各 `assets` 目录。未替这些素材或整个项目擅自指定开源许可证；发布时请保留已有版权说明。
+
+## 赛事的学院选择
+
+“赛事”页面现在支持计算机与信息科学学院与法学院，默认计信并记住浏览器选择。目录与普通官网公告按学院筛选，可选择全部59项；关注、收藏和消息跨学院保留。各学院分值独立，未列名赛事明确提示分值待确认，创新创业25／20分的截图冲突保留待确认。
+
+配置文件为 `swu-notice-monitor/data/college_competition_rules.json`；后续增加学院只需新增配置及赛事关联。完整说明与本机官方入口、分级规则、采集状态清单见 [赛事模块说明](swu-notice-monitor/docs/competition-module.md) 和 [两学院核验清单](swu-notice-monitor/docs/competition-sources.md)。手动采集可按学院，定时仍覆盖全平台，不受页面学院选择影响。
