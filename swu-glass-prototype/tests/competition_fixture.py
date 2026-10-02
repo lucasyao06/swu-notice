@@ -18,5 +18,10 @@ with tempfile.TemporaryDirectory() as temp:
     for i in range(13):
         competitions.upsert_notice(source,{'title':f'联调数学建模比赛报名通知{i+1}','url':f'https://www.mcm.edu.cn/fixture/{i}',
             'published_at':date.today().isoformat(),'kind':'报名','attachments':[]})
+    law_source=competitions.sources('tianxin-judgment')[0]
+    for i in range(2):
+        competitions.upsert_notice(law_source,{'title':f'联调天欣杯裁判文书写作大赛报名通知{i+1}',
+            'url':f'https://www5.zzu.edu.cn/newlaw/fixture/{i}','published_at':date.today().isoformat(),
+            'kind':'报名','attachments':[]})
     try: server.serve_forever()
     finally: server.server_close();campus.close()

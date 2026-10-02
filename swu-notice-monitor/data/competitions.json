@@ -937,7 +937,12 @@
       "scores": [],
       "restriction": "",
       "sources": [],
-      "pending_reason": "尚未确认与截图赛事一致的官方身份和公开参赛公告入口，保留目录，待逐届核验；不使用推广或培训网站。"
+      "pending_reason": "截图“国际华语辩论赛”不足以唯一对应邀请赛、锦标赛等不同赛事；未找到能确认身份的主办方公开报名入口，不擅自关联新国辩。",
+      "verification": {
+        "checked_on": "2026-10-02",
+        "evidence": [],
+        "conclusion": "截图“国际华语辩论赛”不足以唯一对应邀请赛、锦标赛等不同赛事；未找到能确认身份的主办方公开报名入口，不擅自关联新国辩。"
+      }
     },
     {
       "id": "national-mootcourt",
@@ -949,8 +954,22 @@
       "awards": [],
       "scores": [],
       "restriction": "",
-      "sources": [],
-      "pending_reason": "尚未确认与截图赛事一致的官方身份和公开参赛公告入口，保留目录，待逐届核验；不使用推广或培训网站。"
+      "sources": [
+        {
+          "name": "全国大学生模拟法庭竞赛组委会官网",
+          "url": "https://www.mootcourt.cn/",
+          "list_url": "https://www.mootcourt.cn/articles",
+          "evidence": "https://www.mootcourt.cn/articles/155",
+          "keywords": [
+            "模拟法庭竞赛"
+          ],
+          "exclude": [],
+          "path_prefix": "/articles",
+          "parser_note": "按官方栏目标题匹配此赛事；仅收参赛公告，历史宣传报道不入库。"
+        }
+      ],
+      "pending_reason": "",
+      "official_url": "https://www.mootcourt.cn/"
     },
     {
       "id": "tianxin-judgment",
@@ -962,21 +981,51 @@
       "awards": [],
       "scores": [],
       "restriction": "",
-      "sources": [],
-      "pending_reason": "尚未确认与截图赛事一致的官方身份和公开参赛公告入口，保留目录，待逐届核验；不使用推广或培训网站。"
+      "sources": [
+        {
+          "name": "郑州大学中国司法案例研究中心／法学院",
+          "url": "https://www5.zzu.edu.cn/newlaw/",
+          "list_url": "https://www5.zzu.edu.cn/newlaw/tzgg.htm",
+          "evidence": "https://www5.zzu.edu.cn/newlaw/info/1022/7326.htm",
+          "keywords": [
+            "天欣杯"
+          ],
+          "exclude": [],
+          "path_prefix": "/newlaw/",
+          "parser_note": "按官方栏目标题匹配此赛事；仅收参赛公告，历史宣传报道不入库。"
+        }
+      ],
+      "pending_reason": "",
+      "official_url": "https://www5.zzu.edu.cn/newlaw/"
     },
     {
       "id": "copyright-essay",
       "name": "全国大学生版权征文大赛",
       "screenshot_name": "全国大学生版权征文大赛",
       "current_name": null,
-      "aliases": [],
+      "aliases": [
+        "全国大学生版权征文活动"
+      ],
       "group": "国家级",
       "awards": [],
       "scores": [],
       "restriction": "",
-      "sources": [],
-      "pending_reason": "尚未确认与截图赛事一致的官方身份和公开参赛公告入口，保留目录，待逐届核验；不使用推广或培训网站。"
+      "sources": [
+        {
+          "name": "国家版权局通知公告",
+          "url": "https://www.ncac.gov.cn/",
+          "list_url": "https://www.ncac.gov.cn/xxfb/tzgg/",
+          "evidence": "https://www.ncac.gov.cn/xxfb/tzgg/201807/t20180705_50449.html",
+          "keywords": [
+            "全国大学生版权征文"
+          ],
+          "exclude": [],
+          "path_prefix": "/xxfb/",
+          "parser_note": "国家版权局2018年正式通知核验赛事身份；当前栏目需实际核验可解析性与最近365天公告，不将历史通知回填。"
+        }
+      ],
+      "pending_reason": "",
+      "official_url": "https://www.ncac.gov.cn/"
     },
     {
       "id": "judicial-bigdata-essay",
@@ -989,7 +1038,14 @@
       "scores": [],
       "restriction": "",
       "sources": [],
-      "pending_reason": "尚未确认与截图赛事一致的官方身份和公开参赛公告入口，保留目录，待逐届核验；不使用推广或培训网站。"
+      "pending_reason": "高校正式资料提及“中国法研杯／法研灯塔”司法大数据征文赛道，但尚未从主办方核验与截图的具体身份及当前公开入口。",
+      "verification": {
+        "checked_on": "2026-10-02",
+        "evidence": [
+          "https://law.csu.edu.cn/info/1102/5242.htm"
+        ],
+        "conclusion": "高校正式资料提及“中国法研杯／法研灯塔”司法大数据征文赛道，但尚未从主办方核验与截图的具体身份及当前公开入口。"
+      }
     },
     {
       "id": "yingchunhua-debate",
@@ -1002,7 +1058,14 @@
       "scores": [],
       "restriction": "",
       "sources": [],
-      "pending_reason": "尚未确认与截图赛事一致的官方身份和公开参赛公告入口，保留目录，待逐届核验；不使用推广或培训网站。"
+      "pending_reason": "学院历史官方报道确认“迎春花杯”高校网辩交流赛名称，未核验主办方公开参赛公告入口；报道不入库。",
+      "verification": {
+        "checked_on": "2026-10-02",
+        "evidence": [
+          "https://law.swu.edu.cn/info/1089/6201.htm"
+        ],
+        "conclusion": "学院历史官方报道确认“迎春花杯”高校网辩交流赛名称，未核验主办方公开参赛公告入口；报道不入库。"
+      }
     },
     {
       "id": "five-law-drama",
@@ -1015,20 +1078,41 @@
       "scores": [],
       "restriction": "",
       "sources": [],
-      "pending_reason": "尚未确认与截图赛事一致的官方身份和公开参赛公告入口，保留目录，待逐届核验；不使用推广或培训网站。"
+      "pending_reason": "未检索到与截图“五院杯法学辩剧大赛”一致的主办方正式入口；不擅自替换为辩论赛。",
+      "verification": {
+        "checked_on": "2026-10-02",
+        "evidence": [],
+        "conclusion": "未检索到与截图“五院杯法学辩剧大赛”一致的主办方正式入口；不擅自替换为辩论赛。"
+      }
     },
     {
       "id": "lingjun-english-moot",
       "name": "“领军杯”涉外模拟法庭全英辩论",
       "screenshot_name": "“领军杯”涉外模拟法庭全英辩论",
-      "current_name": null,
-      "aliases": [],
+      "current_name": "“领军杯”涉外模拟法庭全英文辩论赛",
+      "aliases": [
+        "领军杯涉外模拟法庭全英辩论赛"
+      ],
       "group": "其他赛事",
       "awards": [],
       "scores": [],
       "restriction": "",
-      "sources": [],
-      "pending_reason": "尚未确认与截图赛事一致的官方身份和公开参赛公告入口，保留目录，待逐届核验；不使用推广或培训网站。"
+      "sources": [
+        {
+          "name": "当届承办方北京理工大学法学院",
+          "url": "https://law.bit.edu.cn/",
+          "list_url": "https://law.bit.edu.cn/tzgg/index.htm",
+          "evidence": "https://law.bit.edu.cn/tzgg/fa76039f67d74676b4035f1fb99359be.htm",
+          "keywords": [
+            "领军杯"
+          ],
+          "exclude": [],
+          "path_prefix": "/tzgg/",
+          "parser_note": "官方邀请函确认第五届2025年承办身份；后续届次承办入口仍需持续核验，不扩大为其他模拟法庭赛事。"
+        }
+      ],
+      "pending_reason": "",
+      "official_url": "https://law.bit.edu.cn/"
     },
     {
       "id": "agriculture-future-lawyer",
@@ -1041,85 +1125,179 @@
       "scores": [],
       "restriction": "",
       "sources": [],
-      "pending_reason": "尚未确认与截图赛事一致的官方身份和公开参赛公告入口，保留目录，待逐届核验；不使用推广或培训网站。"
+      "pending_reason": "主办身份已由官方资料确认：中国农业农村法治研究会与中国农业大学农业与农村法制研究中心；当届轮流承办，现未确认持续发布面向全体参赛队的正式公告栏目。",
+      "verification": {
+        "checked_on": "2026-10-02",
+        "evidence": [
+          "https://law.swu.edu.cn/info/1251/7748.htm",
+          "https://cohd.cau.edu.cn/art/2025/9/5/art_22198_1079728.html"
+        ],
+        "conclusion": "主办身份已由官方资料确认：中国农业农村法治研究会与中国农业大学农业与农村法制研究中心；当届轮流承办，现未确认持续发布面向全体参赛队的正式公告栏目。"
+      }
     },
     {
       "id": "yingming-zhili-moot",
       "name": "“鹰鸣·至立”杯模拟庭审赛",
       "screenshot_name": "“鹰鸣·至立”杯模拟庭审赛",
       "current_name": null,
-      "aliases": [],
+      "aliases": [
+        "至立杯模拟庭审大赛",
+        "廌鸣·至立杯模拟庭审赛"
+      ],
       "group": "其他赛事",
       "awards": [],
       "scores": [],
       "restriction": "",
-      "sources": [],
-      "pending_reason": "尚未确认与截图赛事一致的官方身份和公开参赛公告入口，保留目录，待逐届核验；不使用推广或培训网站。"
+      "sources": [
+        {
+          "name": "西南大学法学院学工动态",
+          "url": "https://law.swu.edu.cn/",
+          "list_url": "https://law.swu.edu.cn/rcpy/xzsg1/xgdt.htm",
+          "evidence": "https://law.swu.edu.cn/info/1089/3637.htm",
+          "keywords": [
+            "至立杯"
+          ],
+          "exclude": [],
+          "path_prefix": "/rcpy/xzsg1/xgdt",
+          "parser_note": "2022年学院正式参赛通知核验至立杯赛事；只收本赛事通知，不收历史决赛报道，现届冠名仍待核验。"
+        }
+      ],
+      "pending_reason": "",
+      "official_url": "https://law.swu.edu.cn/"
     },
     {
       "id": "yingming-zhonglun-writing",
       "name": "“鹰鸣·中伦文德杯”法律文书写作大赛",
       "screenshot_name": "“鹰鸣·中伦文德杯”法律文书写作大赛",
       "current_name": null,
-      "aliases": [],
+      "aliases": [
+        "中伦文德杯法律文书大赛",
+        "廌鸣·中伦文德杯法律文书写作大赛"
+      ],
       "group": "其他赛事",
       "awards": [],
       "scores": [],
       "restriction": "",
       "sources": [],
-      "pending_reason": "尚未确认与截图赛事一致的官方身份和公开参赛公告入口，保留目录，待逐届核验；不使用推广或培训网站。"
+      "pending_reason": "学院官方报道核验“中伦文德杯”法律文书大赛举办筹备；尚未找到公开参赛公告及现届冠名依据，筹备报道不入库。",
+      "verification": {
+        "checked_on": "2026-10-02",
+        "evidence": [
+          "https://law.swu.edu.cn/info/1003/5691.htm"
+        ],
+        "conclusion": "学院官方报道核验“中伦文德杯”法律文书大赛举办筹备；尚未找到公开参赛公告及现届冠名依据，筹备报道不入库。"
+      }
     },
     {
       "id": "yingming-hongshuang-speech",
       "name": "“鹰鸣·弘双杯”演讲比赛暨宪法知识竞赛",
       "screenshot_name": "“鹰鸣·弘双杯”演讲比赛暨宪法知识竞赛",
       "current_name": null,
-      "aliases": [],
+      "aliases": [
+        "廌鸣·弘双杯演讲比赛暨宪法知识竞赛"
+      ],
       "group": "其他赛事",
       "awards": [],
       "scores": [],
       "restriction": "",
       "sources": [],
-      "pending_reason": "尚未确认与截图赛事一致的官方身份和公开参赛公告入口，保留目录，待逐届核验；不使用推广或培训网站。"
+      "pending_reason": "学院历史栏目有“弘双杯”演讲口才赛报道，但尚未核验截图“演讲比赛暨宪法知识竞赛”的完整身份及现届公开公告。",
+      "verification": {
+        "checked_on": "2026-10-02",
+        "evidence": [
+          "https://law.swu.edu.cn/rcpy/xzsg1/xgdt/2.htm"
+        ],
+        "conclusion": "学院历史栏目有“弘双杯”演讲口才赛报道，但尚未核验截图“演讲比赛暨宪法知识竞赛”的完整身份及现届公开公告。"
+      }
     },
     {
       "id": "hanhong-academic",
       "name": "“含弘杯”学术科技作品竞赛",
       "screenshot_name": "“含弘杯”学术科技作品竞赛",
-      "current_name": null,
-      "aliases": [],
+      "current_name": "西南大学“含弘杯”学生课外学术科技作品竞赛",
+      "aliases": [
+        "含弘杯学生课外学术科技作品竞赛"
+      ],
       "group": "其他赛事",
       "awards": [],
       "scores": [],
       "restriction": "",
-      "sources": [],
-      "pending_reason": "尚未确认与截图赛事一致的官方身份和公开参赛公告入口，保留目录，待逐届核验；不使用推广或培训网站。"
+      "sources": [
+        {
+          "name": "西南大学团委通知公告",
+          "url": "https://gqt.swu.edu.cn/",
+          "list_url": "https://gqt.swu.edu.cn/tzgg.htm",
+          "evidence": "https://gqt.swu.edu.cn/info/1006/1412.htm",
+          "keywords": [
+            "含弘杯"
+          ],
+          "exclude": [
+            "创新创业",
+            "创业计划"
+          ],
+          "path_prefix": "/tzgg",
+          "parser_note": "按官方栏目标题匹配此赛事；仅收参赛公告，历史宣传报道不入库。"
+        }
+      ],
+      "pending_reason": "",
+      "official_url": "https://gqt.swu.edu.cn/"
     },
     {
       "id": "yingming-academic",
       "name": "“鹰鸣杯”学术科技作品竞赛",
       "screenshot_name": "“鹰鸣杯”学术科技作品竞赛",
       "current_name": null,
-      "aliases": [],
+      "aliases": [
+        "廌鸣杯学术科技作品大赛"
+      ],
       "group": "其他赛事",
       "awards": [],
       "scores": [],
       "restriction": "",
       "sources": [],
-      "pending_reason": "尚未确认与截图赛事一致的官方身份和公开参赛公告入口，保留目录，待逐届核验；不使用推广或培训网站。"
+      "pending_reason": "学院官方教师资料提及“廌鸣杯”学术科技作品大赛，保留截图“鹰鸣杯”名称及官方别名；未找到可用公开参赛公告栏目。",
+      "verification": {
+        "checked_on": "2026-10-02",
+        "evidence": [
+          "https://law.swu.edu.cn/info/1139/2386.htm"
+        ],
+        "conclusion": "学院官方教师资料提及“廌鸣杯”学术科技作品大赛，保留截图“鹰鸣杯”名称及官方别名；未找到可用公开参赛公告栏目。"
+      }
     },
     {
       "id": "challenge-business",
       "name": "“挑战杯”中国大学生创业计划竞赛",
       "screenshot_name": "“挑战杯”中国大学生创业计划竞赛",
       "current_name": null,
-      "aliases": [],
+      "aliases": [
+        "挑战杯中国大学生创业计划大赛",
+        "挑战杯创业计划竞赛"
+      ],
       "group": "国家级",
       "awards": [],
       "scores": [],
       "restriction": "",
-      "sources": [],
-      "pending_reason": "尚未确认与截图赛事一致的官方身份和公开参赛公告入口，保留目录，待逐届核验；不使用推广或培训网站。"
+      "sources": [
+        {
+          "name": "挑战杯官方赛事通知栏目",
+          "url": "https://www.tiaozhanbei.net/",
+          "list_url": "https://www.tiaozhanbei.net/tzb/notice",
+          "evidence": "https://www.tiaozhanbei.net/",
+          "keywords": [
+            "中国大学生创业计划"
+          ],
+          "exclude": [
+            "网络虚拟运营",
+            "校内",
+            "选拔赛",
+            "培训交流"
+          ],
+          "path_prefix": "/tzb/notice",
+          "parser_note": "官网明确区分课外学术作品赛与创业计划赛；仅匹配创业计划参赛公告。官网培训交流及校赛报道不入库。"
+        }
+      ],
+      "pending_reason": "",
+      "official_url": "https://www.tiaozhanbei.net/"
     }
   ]
 }

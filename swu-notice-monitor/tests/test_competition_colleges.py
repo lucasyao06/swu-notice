@@ -4,13 +4,13 @@ import threading
 import unittest
 import urllib.request
 import urllib.error
-from datetime import date
+from datetime import date, datetime, timedelta
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 
 from backend.store import Store
 from backend.competition_store import CompetitionStore
-from backend.competition_collector import start_collection, run_collection, scheduler_loop
+from backend.competition_collector import start_collection, parse_listing, scheduler_loop
 from backend.server import MonitorServer
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -39,6 +39,8 @@ class CollegeTests(unittest.TestCase):
         self.assertEqual(3,self.store.list_catalog(college_id='law',category='学术科技')['total'])
         self.assertEqual(2,self.store.list_catalog(college_id='law',category='创新创业')['total'])
         self.assertEqual(15,len({x['id'] for x in law}-{x['id'] for x in cis}))
+        self.assertEqual('innovation',self.store.list_catalog(college_id='law',q='互联网＋')['items'][0]['id'])
+        self.assertEqual('innovation',self.store.list_catalog(college_id='law',q='中国国际“互联网＋”大学生创新创业大赛')['items'][0]['id'])
         for college in self.store.colleges()['items']:
             self.assertIn('适用学年尚未确认',college['policy']['label'])
 
@@ -65,7 +67,7 @@ class CollegeTests(unittest.TestCase):
             rule=law[id]['reference_rules'][0]
             self.assertEqual(law['challenge']['scores'],law[id]['scores'])
             self.assertIn('25分',rule['conflicts'][0]);self.assertIn('20分',rule['conflicts'][0])
-            self.assertIn('待学院确认',rule['conflicts'][0]);self.assertIn('相应标准',rule['notes'][0])
+            self.assertIn('待学院确认',rule['conflicts'][0]);self.assertTrue(any('相应标准' in x for x in rule['notes']))
 
     def test_cross_college_never_inherits_another_colleges_points(self):
         rows={x['id']:x for x in self.store.list_catalog(college_id='law',scope='all')['items']}
@@ -144,6 +146,30 @@ class CollegeTests(unittest.TestCase):
         self.assertTrue(self.store.resume_requested);self.assertEqual('law',self.store.resume_college_id)
         with self.assertRaises(ValueError):start_collection(self.store,'cumcm','law')
         with self.assertRaises(ValueError):start_collection(self.store,college_id='invalid')
+
+    def test_law_official_samples_reject_publicity_and_other_competitions(self):
+        config=self.store.sources('hanhong-academic')[0]['config']
+        html='''<li><a href="/info/1006/1.htm">关于举办第十届含弘杯学生课外学术科技作品竞赛的通知</a>2026-10-01</li>
+          <li><a href="/info/1006/2.htm">关于举办含弘杯大学生创业计划竞赛的通知</a>2026-09-30</li>
+          <li><a href="/info/1006/3.htm">喜报：含弘杯学术科技作品竞赛获奖</a>2026-09-30</li>'''
+        rows,_=parse_listing(html,config['list_url'],config)
+        self.assertEqual(1,len(rows));self.assertEqual('2026-10-01',rows[0]['published_at'])
+        config=self.store.sources('challenge-business')[0]['config']
+        html='''<a href="/article/1/">关于举办第十五届挑战杯中国大学生创业计划竞赛的通知</a>
+          <a href="/article/2/">关于举办第二十届挑战杯全国大学生课外学术科技作品竞赛的通知</a>
+          <a href="/article/3/">挑战杯中国大学生创业计划竞赛培训交流顺利举办</a>'''
+        rows,_=parse_listing(html,config['list_url'],config)
+        self.assertEqual(1,len(rows));self.assertTrue(rows[0]['url'].endswith('/article/1/'))
+
+    def test_due_scheduler_always_collects_all_after_a_college_manual_run(self):
+        self.store.progress({'college_id':'law'},finished=True)
+        self.store.db.execute('UPDATE competition_crawl_state SET last_finished=?',
+                             ((datetime.now().astimezone()-timedelta(hours=6)).isoformat(),))
+        self.store.db.commit()
+        stop=Mock();stop.wait.side_effect=[False,True]
+        with patch('backend.competition_collector.start_collection',return_value=True) as start:
+            scheduler_loop(self.store,stop)
+            start.assert_called_once_with(self.store)
 
 
 class CollegeApiTests(unittest.TestCase):

@@ -23,11 +23,11 @@ HOST_LOCK = threading.Lock()
 
 
 def classify(title):
-    if re.search(r'圆满落幕|成功举办|精彩回顾|风采|人物专访|赞助商招募|教练论坛|培训视频|新闻报道|精彩瞬间|采购|招聘|总结大会|参赛高校|赛事介绍|常见问题|联系我们|关于我们', title, re.I):
+    if re.search(r'圆满落幕|圆满收官|成功举办|顺利举办|培训交流|喜报|斩获|创佳绩|精彩回顾|风采|人物专访|赞助商招募|教练论坛|培训视频|新闻报道|精彩瞬间|采购|招聘|总结大会|参赛高校|赛事介绍|常见问题|联系我们|关于我们', title, re.I):
         return None
     for kind, pattern in [('变更',r'变更|延期|延迟|调整|更名|勘误|update|change|postpone|correction'),
                           ('获奖公示',r'获奖|授奖|颁奖名单|奖项|award|winner'),
-                          ('成绩',r'成绩|赛果|晋级|入围|排名|结果公示|results?|finalist'),
+                          ('成绩',r'成绩|赛果|晋级|入围|排名|结果公示|结果公布|评审结果|results?|finalist'),
                           ('报名',r'报名|参赛通知|举办.*通知|注册|registration|register|invitation'),
                           ('赛程',r'赛程|时间安排|日程|赛场安排|报到|schedule|timeline'),
                           ('规则',r'规则|规程|章程|规范|要求|指南|申诉|考试大纲|技术方案.*发布|rules?|instructions?|guidelines?'),

@@ -1,6 +1,7 @@
 """Independent competition data; shares only the SQLite connection and lock."""
 import json
 import threading
+import unicodedata
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
@@ -157,7 +158,9 @@ class CompetitionStore:
                 continue
             if group and original['group'] != group:
                 continue
-            if q.casefold() not in ' '.join([original['name'], original.get('current_name') or '', *original.get('aliases', [])]).casefold():
+            search_text = ' '.join([original['name'],original.get('current_name') or '',original.get('screenshot_name') or '',
+                                    *original.get('aliases',[]),*[r['screenshot_name'] for r in rules]])
+            if unicodedata.normalize('NFKC',q).casefold() not in unicodedata.normalize('NFKC',search_text).casefold():
                 continue
             default = next((x for x in rules[0]['levels'] if x['name']==rules[0]['default_level']),{}) if rules else {}
             item = {**original, **reference, 'awards':default.get('awards',[]), 'scores':default.get('scores',[]),
@@ -171,7 +174,8 @@ class CompetitionStore:
             item['sources'] = [{**s['config'], 'id': s['id'], 'status': s['status'], 'error': s['error'],
                                 'baseline': bool(s['baseline']), 'last_checked': s['last_checked']} for s in registered]
             items.append(item)
-        return {'items': items, 'total': len(items), 'policy':{**self.policy,**college['policy']}, 'college':college, 'scope':scope}
+        policy = {**self.policy,**college['policy']} if college['id']==self.default_college else college['policy']
+        return {'items': items, 'total': len(items), 'policy':policy, 'college':college, 'scope':scope}
 
     @staticmethod
     def page_args(limit, offset):
