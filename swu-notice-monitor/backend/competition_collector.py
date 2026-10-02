@@ -77,6 +77,21 @@ def safe_link(base, href):
     return canonical_url(url)
 
 
+def article_publication(content):
+    published=public_date(extract_article_metadata(content).get('published_at'))
+    if published:
+        return published
+    # COMAP and other English sites use semantic <time> in a publication
+    # header. Do not pick unlabelled event dates from the article body.
+    for node in Tree(content).root.walk():
+        if node.tag=='time' and node.parent:
+            context=normalized(node.parent.text())
+            if len(context)<240 and re.search(r'written on|published(?: on)?|posted on|发布时间|发布日期|发布于',context,re.I):
+                published=public_date(node.attrs.get('datetime') or node.text())
+                if published:return published
+    return ''
+
+
 def json_items(payload, base, config=None):
     out = []
     fields = (config or {}).get('json_fields', {})
@@ -268,8 +283,7 @@ def collect_source(store, source, fetch=None, budget=None):
             content,effective = fetch(page['url'])
             if page['kind']=='detail':
                 item = dict(page['item'])
-                metadata = extract_article_metadata(content)
-                item['published_at'] = public_date(metadata.get('published_at')) or item['published_at']
+                item['published_at'] = article_publication(content) or item['published_at']
                 attachments = []
                 for node in Tree(content).root.walk():
                     if node.tag!='a': continue
@@ -277,7 +291,8 @@ def collect_source(store, source, fetch=None, budget=None):
                     if href and re.search(r'\.(pdf|docx?|xlsx?|zip)(?:\?|$)',href,re.I):
                         attachments.append({'title':anchor_title(node) or '官网附件','url':href})
                 item['attachments'] = attachments
-                store.upsert_notice(source,item)
+                _,created=store.upsert_notice(source,item)
+                inserted+=int(created)
             else:
                 items,links = parse_listing(content,effective,config)
                 accepted = 0
@@ -286,13 +301,17 @@ def collect_source(store, source, fetch=None, budget=None):
                     except ValueError: continue
                     accepted += 1
                     if item['published_at'] and item['published_at']<(date.today()-timedelta(days=365)).isoformat(): continue
-                    notice,created = store.upsert_notice(source,item)
-                    inserted += int(created)
-                    if config.get('detail_fetch',True) and not item.get('detail_complete') and not re.search(r'\.(pdf|docx?|xlsx?|zip)(?:\?|$)',item['url'],re.I):
+                    attachment=bool(re.search(r'\.(pdf|docx?|xlsx?|zip)(?:\?|$)',item['url'],re.I))
+                    needs_detail=config.get('detail_fetch',True) and not item.get('detail_complete') and not attachment
+                    if attachment:item['attachments']=[{'title':item['title'],'url':item['url']}]
+                    # Resolve an undated detail before alerting: it may prove
+                    # to be an old announcement outside the backfill window.
+                    if item['published_at'] or not needs_detail:
+                        _,created = store.upsert_notice(source,item)
+                        inserted += int(created)
+                    if needs_detail:
                         if item['url'] not in visited and not any(p['url']==item['url'] for p in queue):
                             queue.append({'url':item['url'],'kind':'detail','item':item})
-                    elif re.search(r'\.(pdf|docx?|xlsx?|zip)(?:\?|$)',item['url'],re.I):
-                        store.upsert_notice(source,{**item,'attachments':[{'title':item['title'],'url':item['url']}]})
                 found += accepted
                 # If an entire chronological page predates the backfill window,
                 # do not traverse its older archive pages.
@@ -359,6 +378,10 @@ def start_collection(store, competition_id=None):
 
 def scheduler_loop(store, stop):
     next_run = time.monotonic()
+    state=store.crawl_state()
+    if state.get('last_finished'):
+        elapsed=(datetime.now().astimezone()-datetime.fromisoformat(state['last_finished'])).total_seconds()
+        next_run+=max(0,store.settings()['interval_minutes']*60-elapsed)
     if store.resume_requested:
         start_collection(store,store.resume_id)
     while not stop.wait(5):

@@ -34,6 +34,7 @@ async function wait(url){for(let i=0;i<100;i++){try{if((await fetch(url)).ok)ret
   await page.route('**/api/competition/notices?**',r=>r.fulfill({status:503,contentType:'application/json',body:'{"error":"赛事测试离线"}'}));await page.getByRole('button',{name:'刷新',exact:true}).click();await page.getByRole('alert').filter({hasText:'赛事测试离线'}).waitFor();await page.unroute('**/api/competition/notices?**');await page.getByRole('button',{name:'重试',exact:true}).click();await idle();
   await page.getByRole('combobox',{name:'数据模式',exact:true}).selectOption('demo');await idle();await page.getByRole('button',{name:'官网通知',exact:true}).click();await idle();assert.equal(await page.locator('.competition-notice-list article').count(),3);
   await page.getByRole('button',{name:'赛事目录',exact:true}).click();await idle();
+  await page.getByRole('button',{name:'设置',exact:true}).click();await page.getByRole('combobox',{name:'光线氛围'}).selectOption('morning');await page.getByRole('button',{name:'赛事',exact:true}).click();await idle();assert.equal(await page.locator('.light-morning').count(),1);
   for(const width of [1440,390,320]){
    await page.setViewportSize({width,height:900});await page.waitForTimeout(150);assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'horizontal overflow at '+width);
    if(width===1440||width===390)await page.screenshot({path:path.join(root,'docs',`competition-${width}.png`),fullPage:true});

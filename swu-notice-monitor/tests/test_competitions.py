@@ -6,12 +6,12 @@ import urllib.request
 import urllib.error
 from datetime import date, timedelta
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 
 from backend.store import Store
 from backend.competition_store import CompetitionStore
 from backend.competition_collector import (classify, parse_listing, collect_source, start_collection,
-    check_url, public_date, KINDS)
+    check_url, public_date, article_publication, scheduler_loop, KINDS)
 from backend.server import MonitorServer
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -33,6 +33,17 @@ class CompetitionTests(unittest.TestCase):
 
     def test_catalog_exact_scores_and_named_tracks(self):
         rows = {x['id']:x for x in self.store.list_catalog()['items']}
+        expected=[(['innovation'],[None,30,25,20,4]),(['challenge'],[30,25,20,15,4]),
+            ('nuedc ccpc icpc cumcm robomaster robocon robotac'.split(),[25,25,20,12,4]),
+            (['mcm-icm'],[25,20,10,4,0]),
+            ('smartcar ciscn iot caairobot robotcontest software-cup h3c system-capability embedded datang robocom robocup computer-design c4-bigdata c4-ladder c4-app c4-network c4-ai c4-miniprogram'.split(),[18,18,12,9,4]),
+            (['lanqiao'],[12,12,10,6,3]),
+            ('vr math ai-future digital-skills ncccu digital-media information-literacy'.split(),[12,12,8,6,0]),
+            ('cq-electronics cq-programming cq-database cq-security'.split(),[9,9,7,5,2]),
+            (['bayu'],[5,5,4,3,0]),(['certification','swu-modeling'],[3,3,2,1,0])]
+        self.assertEqual(set(rows),{id for ids,_ in expected for id in ids})
+        for ids,scores in expected:
+            for id in ids:self.assertEqual(scores,rows[id]['scores'],id)
         self.assertEqual([None,30,25,20,4],rows['innovation']['scores'])
         self.assertEqual([25,20,10,4,0],rows['mcm-icm']['scores'])
         self.assertEqual(['O','F','M','H','S'],rows['mcm-icm']['awards'])
@@ -115,6 +126,8 @@ class CompetitionTests(unittest.TestCase):
         rss = '<rss><channel><item><title>MCM registration announcement</title><link>https://comap.org/register</link><pubDate>Mon, 01 Dec 2025 10:00:00 GMT</pubDate></item></channel></rss>'
         rows,_ = parse_listing(rss,'https://comap.org/',{})
         self.assertEqual('2025-12-01',rows[0]['published_at'])
+        self.assertEqual('2026-05-08',article_publication('<div>Written on <time datetime="2026-05-08T13:39:02-04:00">May 8, 2026</time>. Posted in Math Contests.</div><h1>2026 MCM/ICM results</h1>'))
+        self.assertEqual('',article_publication('<article>比赛时间 <time datetime="2026-05-08">May 8, 2026</time></article>'))
 
     def test_missing_year_and_future_dates_never_invented(self):
         self.assertEqual('',public_date('09-22'))
@@ -164,6 +177,19 @@ class CompetitionTests(unittest.TestCase):
         self.assertIn('timeout',self.store.sources('cumcm')[0]['error'])
         self.assertTrue(self.store.sources('cumcm')[0]['checkpoint']['pending'])
 
+    def test_old_detail_date_never_sends_a_new_announcement(self):
+        self.store.save_subscriptions(['cumcm'])
+        self.store.checkpoint(self.source['id'],{},'正常',complete=True)
+        source=self.store.sources('cumcm')[0];entry=source['config']['url'];article=entry+'notice/old'
+        old=(date.today()-timedelta(days=366)).isoformat()
+        pages={entry:f'<a href="{article}">数学建模竞赛报名通知</a>',article:f'<meta name="publishdate" content="{old}"><h1>数学建模竞赛报名通知</h1>'}
+        collect_source(self.store,source,lambda url:(pages[url],url))
+        self.assertEqual(0,self.store.list_notices()['total']);self.assertEqual(0,self.store.list_messages()['total'])
+        n,_=self.store.upsert_notice(source,{**self.item,'published_at':''})
+        self.store.upsert_notice(source,{**self.item,'published_at':old})
+        self.assertEqual(old,self.store.get_notice(n['id'])['published_at'])
+        self.assertEqual(0,self.store.list_notices()['total'])
+
     def test_stopped_and_restart_state(self):
         self.assertTrue(self.store.claim('cumcm')); self.assertFalse(self.store.claim('cumcm'))
         self.store.stop(resume=True)
@@ -172,6 +198,13 @@ class CompetitionTests(unittest.TestCase):
         resumed.claim('ccpc'); resumed.stop()
         stopped=CompetitionStore(self.campus)
         self.assertFalse(stopped.resume_requested)
+
+    def test_scheduler_preserves_interval_after_restart(self):
+        self.store.progress({},finished=True)
+        stop=Mock();stop.wait.side_effect=[False,True]
+        with patch('backend.competition_collector.start_collection') as start:
+            scheduler_loop(self.store,stop)
+            start.assert_not_called()
 
     def test_registered_host_only_and_private_dns(self):
         with self.assertRaises(ValueError): check_url('https://evil.test/a',self.source['config'],{},False)

@@ -106,7 +106,7 @@ class CompetitionStore:
         for original in self.catalog['items']:
             if group and original['group'] != group:
                 continue
-            if q.casefold() not in ' '.join([original['name'], original.get('current_name',''), *original.get('aliases', [])]).casefold():
+            if q.casefold() not in ' '.join([original['name'], original.get('current_name') or '', *original.get('aliases', [])]).casefold():
                 continue
             item = {**original, 'awards': original.get('awards',self.policy['awards']),
                     'scores': original.get('scores',self.policy['score_groups'].get(original.get('score_group'))),
@@ -176,11 +176,11 @@ class CompetitionStore:
 
     def upsert_notice(self, source, item):
         published = item.get('published_at','')
-        if published and published[:10] < (date.today()-timedelta(days=365)).isoformat():
-            return None, False
         with self.lock:
             prior = self.db.execute('SELECT * FROM competition_notices WHERE competition_id=? AND url=?',
                                     (source['competition_id'],item['url'])).fetchone()
+            if not prior and published and published[:10] < (date.today()-timedelta(days=365)).isoformat():
+                return None, False
             timestamp = now()
             if prior:
                 # An undated list refresh must not erase verified detail metadata.

@@ -101,7 +101,9 @@
           "max_pages": 12,
           "transport_note": "教育部栏目当前重定向至HTTP；显式使用官网公开HTTP入口，不对其他HTTPS来源降级。"
         }
-      ]
+      ],
+      "screenshot_name": "中国国际大学生创新大赛",
+      "current_name": "中国国际大学生创新大赛"
     },
     {
       "id": "challenge",
@@ -125,7 +127,9 @@
           ],
           "max_pages": 24
         }
-      ]
+      ],
+      "screenshot_name": "“挑战杯”全国大学生课外学术科技作品竞赛",
+      "current_name": "“挑战杯”全国大学生课外学术科技作品竞赛"
     },
     {
       "id": "nuedc",
@@ -147,7 +151,9 @@
           ],
           "max_pages": 24
         }
-      ]
+      ],
+      "screenshot_name": "全国大学生电子设计竞赛",
+      "current_name": "全国大学生电子设计竞赛"
     },
     {
       "id": "ccpc",
@@ -168,7 +174,9 @@
           ],
           "max_pages": 24
         }
-      ]
+      ],
+      "screenshot_name": "中国大学生程序设计竞赛（CCPC）",
+      "current_name": "中国大学生程序设计竞赛（CCPC）"
     },
     {
       "id": "icpc",
@@ -182,7 +190,8 @@
       "score_group": "top",
       "official_url": "https://icpc.global/",
       "pending_reason": "官网依赖JavaScript，尚未核验公开公告接口。",
-      "sources": []
+      "sources": [],
+      "screenshot_name": "ACM-ICPC国际大学生程序设计竞赛"
     },
     {
       "id": "cumcm",
@@ -200,7 +209,9 @@
           "evidence": "https://www.mcm.edu.cn/",
           "max_pages": 24
         }
-      ]
+      ],
+      "screenshot_name": "全国大学生数学建模竞赛（高教社杯）",
+      "current_name": "全国大学生数学建模竞赛（高教社杯）"
     },
     {
       "id": "robomaster",
@@ -235,7 +246,9 @@
             "赞助权益"
           ]
         }
-      ]
+      ],
+      "screenshot_name": "全国大学生机器人大赛-RoboMaster",
+      "current_name": "全国大学生机器人大赛-RoboMaster"
     },
     {
       "id": "robocon",
@@ -257,7 +270,9 @@
           ],
           "max_pages": 24
         }
-      ]
+      ],
+      "screenshot_name": "全国大学生机器人大赛-RoboCon",
+      "current_name": "全国大学生机器人大赛-RoboCon"
     },
     {
       "id": "robotac",
@@ -279,7 +294,9 @@
           ],
           "max_pages": 24
         }
-      ]
+      ],
+      "screenshot_name": "全国大学生机器人大赛-RoboTac",
+      "current_name": "全国大学生机器人大赛-RoboTac"
     },
     {
       "id": "mcm-icm",
@@ -326,7 +343,9 @@
           ],
           "max_pages": 24
         }
-      ]
+      ],
+      "screenshot_name": "美国大学生数学建模竞赛（MCM/ICM）",
+      "current_name": "Mathematical Contest in Modeling (MCM) / Interdisciplinary Contest in Modeling (ICM)"
     },
     {
       "id": "smartcar",
@@ -338,7 +357,9 @@
       "score_group": "national",
       "official_url": "https://www.caa.org.cn/Content/260.html",
       "pending_reason": "已核验主办方赛事介绍，持续更新的通知入口待核验。",
-      "sources": []
+      "sources": [],
+      "screenshot_name": "全国大学生智能汽车竞赛",
+      "current_name": null
     },
     {
       "id": "ciscn",
@@ -355,7 +376,9 @@
           "evidence": "https://www.ciscn.cn/",
           "max_pages": 24
         }
-      ]
+      ],
+      "screenshot_name": "全国大学生信息安全竞赛",
+      "current_name": "全国大学生信息安全竞赛"
     },
     {
       "id": "iot",
@@ -370,7 +393,10 @@
           "evidence": "https://iot.sjtu.edu.cn/Default.aspx",
           "max_pages": 24
         }
-      ]
+      ],
+      "screenshot_name": "全国大学生物联网设计竞赛",
+      "aliases": [],
+      "current_name": "全国大学生物联网设计竞赛"
     },
     {
       "id": "caairobot",
@@ -384,7 +410,10 @@
           "evidence": "https://www.caairobot.com/",
           "max_pages": 24
         }
-      ]
+      ],
+      "screenshot_name": "中国机器人及人工智能大赛",
+      "aliases": [],
+      "current_name": "中国机器人及人工智能大赛"
     },
     {
       "id": "robotcontest",
@@ -399,7 +428,9 @@
           "evidence": "https://www.robotcontest.cn/",
           "max_pages": 24
         }
-      ]
+      ],
+      "screenshot_name": "全国高校智能机器人创意大赛",
+      "aliases": []
     },
     {
       "id": "software-cup",
@@ -416,7 +447,9 @@
           "evidence": "https://www.cnsoftbei.com/",
           "max_pages": 24
         }
-      ]
+      ],
+      "screenshot_name": "“中国软件杯”大学生软件设计大赛",
+      "current_name": "“中国软件杯”大学生软件设计大赛"
     },
     {
       "id": "h3c",
@@ -442,7 +475,9 @@
             "证书加分规则"
           ]
         }
-      ]
+      ],
+      "screenshot_name": "“新华三杯”全国大学生数字技术大赛",
+      "current_name": "“新华三杯”全国大学生数字技术大赛"
     },
     {
       "id": "system-capability",
@@ -477,7 +512,10 @@
           "detail_fetch": false,
           "parser_note": "公开接口提供原文链接和发布日期；微信原文由读者打开，不抓取受限制的微信正文。"
         }
-      ]
+      ],
+      "screenshot_name": "全国大学生计算机系统能力大赛",
+      "aliases": [],
+      "current_name": "全国大学生计算机系统能力大赛"
     },
     {
       "id": "embedded",
@@ -496,7 +534,10 @@
           ],
           "max_pages": 24
         }
-      ]
+      ],
+      "screenshot_name": "全国大学生嵌入式芯片与系统设计竞赛",
+      "aliases": [],
+      "current_name": "全国大学生嵌入式芯片与系统设计竞赛"
     },
     {
       "id": "datang",
@@ -511,7 +552,8 @@
       "score_group": "national",
       "official_url": "https://dtcup.dtxiaotangren.com/",
       "pending_reason": "官网公告说明维护升级，公开通知接口需重新核验。",
-      "sources": []
+      "sources": [],
+      "screenshot_name": "“大唐杯”全国大学生移动通信5G技术大赛"
     },
     {
       "id": "robocom",
@@ -526,7 +568,8 @@
       "score_group": "national",
       "official_url": "https://www.robocom.com.cn/",
       "pending_reason": "赛事更名后当前组委会及公开通知入口待核验。",
-      "sources": []
+      "sources": [],
+      "screenshot_name": "RoboCom机器人开发者大赛"
     },
     {
       "id": "robocup",
@@ -552,7 +595,9 @@
           ],
           "max_pages": 24
         }
-      ]
+      ],
+      "screenshot_name": "中国机器人大赛暨RoboCup机器人世界杯中国赛",
+      "current_name": "中国机器人大赛暨RoboCup机器人世界杯中国赛"
     },
     {
       "id": "computer-design",
@@ -566,7 +611,10 @@
           "evidence": "https://jsjds.blcu.edu.cn/",
           "max_pages": 24
         }
-      ]
+      ],
+      "screenshot_name": "中国大学生计算机设计大赛",
+      "aliases": [],
+      "current_name": "中国大学生计算机设计大赛"
     },
     {
       "id": "c4-bigdata",
@@ -575,7 +623,10 @@
       "group": "国家级",
       "score_group": "national",
       "pending_reason": "赛道对应的当前官方通知入口待核验。",
-      "sources": []
+      "sources": [],
+      "screenshot_name": "大数据挑战赛",
+      "aliases": [],
+      "current_name": null
     },
     {
       "id": "c4-ladder",
@@ -587,7 +638,9 @@
       "group": "国家级",
       "score_group": "national",
       "pending_reason": "赛道对应的当前官方通知入口待核验。",
-      "sources": []
+      "sources": [],
+      "screenshot_name": "团体程序设计天梯赛",
+      "current_name": null
     },
     {
       "id": "c4-app",
@@ -603,7 +656,10 @@
           "evidence": "https://www.appcontest.net/home/",
           "max_pages": 24
         }
-      ]
+      ],
+      "screenshot_name": "移动应用创新赛",
+      "aliases": [],
+      "current_name": "中国高校计算机大赛—移动应用创新赛"
     },
     {
       "id": "c4-network",
@@ -612,7 +668,10 @@
       "group": "国家级",
       "score_group": "national",
       "pending_reason": "赛道对应的当前官方通知入口待核验。",
-      "sources": []
+      "sources": [],
+      "screenshot_name": "网络技术挑战赛",
+      "aliases": [],
+      "current_name": null
     },
     {
       "id": "c4-ai",
@@ -622,7 +681,10 @@
       "score_group": "national",
       "official_url": "https://developer.huawei.com/home/C4-AI",
       "pending_reason": "已核验官方赛道页面，动态公告接口待适配。",
-      "sources": []
+      "sources": [],
+      "screenshot_name": "人工智能创意赛",
+      "aliases": [],
+      "current_name": null
     },
     {
       "id": "c4-miniprogram",
@@ -631,7 +693,10 @@
       "group": "国家级",
       "score_group": "national",
       "pending_reason": "赛道对应的当前官方通知入口待核验。",
-      "sources": []
+      "sources": [],
+      "screenshot_name": "微信小程序应用开发赛",
+      "aliases": [],
+      "current_name": null
     },
     {
       "id": "lanqiao",
@@ -643,7 +708,9 @@
       "score_group": "lanqiao",
       "official_url": "https://dasai.lanqiao.cn/",
       "pending_reason": "官网通知公开接口待核验，不以视觉艺术设计赛替代软件赛事。",
-      "sources": []
+      "sources": [],
+      "screenshot_name": "蓝桥杯全国软件和信息技术专业人才大赛",
+      "current_name": null
     },
     {
       "id": "vr",
@@ -655,7 +722,9 @@
       "score_group": "general",
       "official_url": "https://ccvr2024.aconf.org/",
       "pending_reason": "已查到历史届次官网，近一年官方赛事入口待核验。",
-      "sources": []
+      "sources": [],
+      "screenshot_name": "中国虚拟现实大赛",
+      "current_name": null
     },
     {
       "id": "math",
@@ -680,7 +749,9 @@
           ],
           "max_pages": 24
         }
-      ]
+      ],
+      "screenshot_name": "中国大学生数学竞赛（非数学类）",
+      "aliases": []
     },
     {
       "id": "ai-future",
@@ -688,7 +759,10 @@
       "group": "国家级",
       "score_group": "general",
       "pending_reason": "当前赛事通知入口及与截图名称的对应关系待核验。",
-      "sources": []
+      "sources": [],
+      "screenshot_name": "人工智能未来设计大赛",
+      "aliases": [],
+      "current_name": null
     },
     {
       "id": "digital-skills",
@@ -698,7 +772,10 @@
       "score_group": "general",
       "restriction": "办公软件赛道仅国赛阶段加分。",
       "pending_reason": "当前主办方及公开赛事通知入口待核验。",
-      "sources": []
+      "sources": [],
+      "screenshot_name": "新工科创新数字技能竞赛—数字技能应用大赛",
+      "aliases": [],
+      "current_name": null
     },
     {
       "id": "ncccu",
@@ -717,7 +794,9 @@
           "evidence": "https://www.ncccu.org.cn/index/Index/index.html",
           "max_pages": 24
         }
-      ]
+      ],
+      "screenshot_name": "全国高校计算机能力挑战赛",
+      "current_name": "全国高校计算机能力挑战赛"
     },
     {
       "id": "digital-media",
@@ -732,7 +811,10 @@
           "evidence": "https://www.cmit.cn/html/tongzhigonggao/show-144-45738-1.html",
           "max_pages": 24
         }
-      ]
+      ],
+      "screenshot_name": "全国大学生数字媒体科技作品及创意竞赛",
+      "aliases": [],
+      "current_name": "全国大学生数字媒体科技作品及创意竞赛"
     },
     {
       "id": "information-literacy",
@@ -751,7 +833,8 @@
           "evidence": "https://www.swu.edu.cn/info/1066/3554.htm",
           "max_pages": 24
         }
-      ]
+      ],
+      "screenshot_name": "全国大学生信息素养大赛"
     },
     {
       "id": "cq-electronics",
@@ -762,7 +845,9 @@
       "group": "其他赛事",
       "score_group": "regional",
       "pending_reason": "重庆赛区组委会正式公告入口待核验。",
-      "sources": []
+      "sources": [],
+      "screenshot_name": "“TI杯”重庆市大学生电子设计竞赛",
+      "current_name": null
     },
     {
       "id": "cq-programming",
@@ -770,7 +855,10 @@
       "group": "其他赛事",
       "score_group": "regional",
       "pending_reason": "截图将重庆与四川赛事合写，当前赛事对应的官方公告入口待核验。",
-      "sources": []
+      "sources": [],
+      "screenshot_name": "重庆市（四川省）大学生程序设计竞赛",
+      "aliases": [],
+      "current_name": null
     },
     {
       "id": "cq-database",
@@ -778,7 +866,10 @@
       "group": "其他赛事",
       "score_group": "regional",
       "pending_reason": "需核验与数据库应用程序设计大赛的名称关系及主办方入口。",
-      "sources": []
+      "sources": [],
+      "screenshot_name": "重庆市数据库大赛",
+      "aliases": [],
+      "current_name": null
     },
     {
       "id": "cq-security",
@@ -786,7 +877,10 @@
       "group": "其他赛事",
       "score_group": "regional",
       "pending_reason": "当前重庆赛区主办方正式公告入口待核验。",
-      "sources": []
+      "sources": [],
+      "screenshot_name": "重庆市大学生信息安全竞赛",
+      "aliases": [],
+      "current_name": null
     },
     {
       "id": "bayu",
@@ -794,7 +888,10 @@
       "group": "其他赛事",
       "score_group": "bayu",
       "pending_reason": "需核验网络安全联赛入口，排除同名技能大赛。",
-      "sources": []
+      "sources": [],
+      "screenshot_name": "“巴渝杯”大学生网络安全联赛",
+      "aliases": [],
+      "current_name": null
     },
     {
       "id": "certification",
@@ -814,7 +911,8 @@
           "evidence": "https://www.tzmcm.cn/tz.html",
           "max_pages": 12
         }
-      ]
+      ],
+      "screenshot_name": "“认证杯”全国大学生数学建模网络挑战赛"
     },
     {
       "id": "swu-modeling",
@@ -823,7 +921,10 @@
       "score_group": "certification",
       "restriction": "与认证杯网赛一、二阶段三个比赛只取最高奖项，只加一次。",
       "pending_reason": "独立于校园采集，需核验校内数学建模赛的正式发布栏目。",
-      "sources": []
+      "sources": [],
+      "screenshot_name": "西南大学数学建模赛",
+      "aliases": [],
+      "current_name": null
     }
   ]
 }
