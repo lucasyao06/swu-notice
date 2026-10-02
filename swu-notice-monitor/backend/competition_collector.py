@@ -447,7 +447,7 @@ def collect_source(store, source, fetch=None, budget=None):
         checkpoint('采集中')
     status = '失败' if errors else '待继续' if queue else '正常' if found or observed else '解析受限'
     if not found and not observed and not queue and not errors:
-        errors.append({'url':entry,'kind':'list','error':'未识别到参赛公告；可能需要公开接口或专用解析器，不能认定官网没有通知。'})
+        errors.append({'url':entry,'kind':'list','error':config.get('parser_missing_reason') or '未识别到参赛公告；可能需要公开接口或专用解析器，不能认定官网没有通知。'})
     checkpoint(status,complete=not queue and not errors and (found>0 or observed>0))
     return {'source':source['id'],'processed':processed,'inserted':inserted,'pending':len(queue)+len(errors),'status':status}
 

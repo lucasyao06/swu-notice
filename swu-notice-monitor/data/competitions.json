@@ -91,7 +91,7 @@
       "sources": [
         {
           "url": "http://www.moe.gov.cn/",
-          "list_url": "http://www.moe.gov.cn/srcsite/A08/s5672/",
+          "list_url": "http://www.moe.gov.cn/jyb_xxgk/zywj_btlj/",
           "name": "教育部正式通知",
           "evidence": "https://www.moe.gov.cn/srcsite/A08/s5672/202607/t20260731_1445670.html",
           "keywords": [
@@ -99,7 +99,9 @@
             "互联网+"
           ],
           "max_pages": 12,
-          "transport_note": "教育部栏目当前重定向至HTTP；显式使用官网公开HTTP入口，不对其他HTTPS来源降级。"
+          "transport_note": "教育部栏目当前重定向至HTTP；显式使用官网公开HTTP入口，不对其他HTTPS来源降级。",
+          "path_prefix": "/jyb_xxgk/zywj_btlj/",
+          "parser_note": "改用教育部重要文件栏目；原高教司子栏目未提供公告。仅筛选大学生创新大赛正式通知。"
         }
       ],
       "screenshot_name": "中国国际大学生创新大赛",
@@ -172,7 +174,83 @@
             "CCPC",
             "程序设计"
           ],
-          "max_pages": 24
+          "max_pages": 24,
+          "list_url": "https://ccpc.io/api/archive?apikey=84dfa45fd954ca8421904123b676c5e2&channel=5&page=1&pageSize=20&index=-1",
+          "json_items_path": "data",
+          "json_fields": {
+            "title": [
+              "title"
+            ],
+            "url": [
+              "fullurl",
+              "url"
+            ],
+            "date": [
+              "publishtime"
+            ]
+          },
+          "json_date_epoch": "seconds",
+          "json_date_timezone": 8,
+          "json_success": {
+            "path": "status",
+            "value": 1
+          },
+          "json_pagination": {
+            "parameter": "page",
+            "total_items": "data.0.channel.items",
+            "size_parameter": "pageSize"
+          },
+          "detail_fetch": false,
+          "exclude": [
+            "接任",
+            "换届",
+            "主席",
+            "教练论坛"
+          ],
+          "parser_note": "官网自身公开CMS接口；apikey为官网首页公开请求所带的浏览器公开参数，不是用户凭据。publishtime为发布时间秒时间戳；UTC+8解释，原文链接取fullurl。"
+        },
+        {
+          "url": "https://ccpc.io/",
+          "name": "CCPC组委会",
+          "evidence": "https://ccpc.io/",
+          "keywords": [
+            "CCPC",
+            "程序设计"
+          ],
+          "max_pages": 24,
+          "list_url": "https://ccpc.io/api/archive?apikey=84dfa45fd954ca8421904123b676c5e2&channel=4&page=1&pageSize=20&index=-1",
+          "json_items_path": "data",
+          "json_fields": {
+            "title": [
+              "title"
+            ],
+            "url": [
+              "fullurl",
+              "url"
+            ],
+            "date": [
+              "publishtime"
+            ]
+          },
+          "json_date_epoch": "seconds",
+          "json_date_timezone": 8,
+          "json_success": {
+            "path": "status",
+            "value": 1
+          },
+          "json_pagination": {
+            "parameter": "page",
+            "total_items": "data.0.channel.items",
+            "size_parameter": "pageSize"
+          },
+          "detail_fetch": false,
+          "exclude": [
+            "接任",
+            "换届",
+            "主席",
+            "教练论坛"
+          ],
+          "parser_note": "官网自身公开CMS接口；apikey为官网首页公开请求所带的浏览器公开参数，不是用户凭据。publishtime为发布时间秒时间戳；UTC+8解释，原文链接取fullurl。"
         }
       ],
       "screenshot_name": "中国大学生程序设计竞赛（CCPC）",
@@ -189,8 +267,22 @@
       "group": "国家级",
       "score_group": "top",
       "official_url": "https://icpc.global/",
-      "pending_reason": "官网依赖JavaScript，尚未核验公开公告接口。",
-      "sources": [],
+      "pending_reason": "",
+      "sources": [
+        {
+          "name": "ICPC北京总部／Asia EC组委会",
+          "url": "https://icpc.pku.edu.cn/",
+          "list_url": "https://icpc.pku.edu.cn/tzgg/",
+          "evidence": "https://icpc.pku.edu.cn/docs/2026-02/af6cc8c027c04b25b4caf7ecbeb5256e.pdf",
+          "path_prefix": "/tzgg/",
+          "exclude": [
+            "教练研讨",
+            "会议纪要",
+            "组委会工作"
+          ],
+          "parser_note": "全球首页为动态站点；接入ICPC北京总部正式公告栏目，涵盖Asia EC国内区域赛邀请、报名、名额分配、成绩及规则，公开PDF保留；不使用普通参赛高校校内报道。"
+        }
+      ],
       "screenshot_name": "ACM-ICPC国际大学生程序设计竞赛"
     },
     {
@@ -261,18 +353,23 @@
       "score_group": "top",
       "sources": [
         {
-          "url": "https://www.cnrobocon.net/",
+          "url": "https://www.robocon.org.cn/",
           "name": "ROBOCON组委会",
-          "evidence": "https://www.cnrobocon.net/",
-          "keywords": [
-            "ROBOCON",
-            "全国大学生机器人大赛"
+          "evidence": "https://www.robocon.org.cn/",
+          "keywords": [],
+          "max_pages": 24,
+          "list_url": "https://www.robocon.org.cn/index.jsp",
+          "article_path_prefix": "/sys-nd/",
+          "path_prefix": "/sys-nr/",
+          "allowed_hosts": [
+            "30049936.s21i.faiusr.com"
           ],
-          "max_pages": 24
+          "parser_note": "旧cnrobocon.net主要为2025及更早档案；组委会正式通知指定现用robocon.org.cn，现用HTTPS正常。官网HTML公告和规则栏目同时解析；保留正式附件。"
         }
       ],
       "screenshot_name": "全国大学生机器人大赛-RoboCon",
-      "current_name": "全国大学生机器人大赛-RoboCon"
+      "current_name": "全国大学生机器人大赛-RoboCon",
+      "official_url": "https://www.robocon.org.cn/"
     },
     {
       "id": "robotac",
@@ -285,14 +382,18 @@
       "score_group": "top",
       "sources": [
         {
-          "url": "https://robotac.cn/",
+          "url": "http://robotac.cn/",
           "name": "ROBOTAC组委会",
           "evidence": "https://robotac.cn/",
           "keywords": [
             "ROBOTAC",
             "全国大学生机器人大赛"
           ],
-          "max_pages": 24
+          "max_pages": 24,
+          "list_url": "http://robotac.cn/h-col-104.html",
+          "article_path_prefix": "/sys-nd/",
+          "path_prefix": "/h-col-104.html",
+          "transport_note": "官网HTTPS证书主机不匹配；已核验同一官网公开HTTP通知栏目，显式配置HTTP并支持限量gzip解压，不关闭TLS校验。"
         }
       ],
       "screenshot_name": "全国大学生机器人大赛-RoboTac",
@@ -355,11 +456,16 @@
       ],
       "group": "国家级",
       "score_group": "national",
-      "official_url": "https://www.caa.org.cn/Content/260.html",
-      "pending_reason": "已核验主办方赛事介绍，持续更新的通知入口待核验。",
+      "official_url": "http://www.smartcarrace.com/",
+      "pending_reason": "已核验2026组委会官网；首页停留“加载中”。官网JavaScript公开配置把数据请求指向82.157.23.29:5001，该非标准端口入口尚未通过当前采集器核验；保留待接入，不能认定暂无比赛。",
       "sources": [],
       "screenshot_name": "全国大学生智能汽车竞赛",
-      "current_name": null
+      "current_name": null,
+      "verification": {
+        "evidence": [],
+        "conclusion": "已核验2026组委会官网；首页停留“加载中”。官网JavaScript公开配置把数据请求指向82.157.23.29:5001，该非标准端口入口尚未通过当前采集器核验；保留待接入，不能认定暂无比赛。",
+        "checked_at": "2026-10-03"
+      }
     },
     {
       "id": "ciscn",
@@ -371,10 +477,14 @@
       "score_group": "national",
       "sources": [
         {
-          "url": "https://www.ciscn.cn/",
+          "url": "http://www.ciscn.cn/",
           "name": "全国大学生信息安全竞赛组委会",
           "evidence": "https://www.ciscn.cn/",
-          "max_pages": 24
+          "max_pages": 24,
+          "list_url": "http://www.ciscn.cn/announcement",
+          "article_path_prefix": "/announcement/view/",
+          "path_prefix": "/announcement",
+          "transport_note": "官网HTTPS当前返回自签名证书；已核验同域官方HTTP公告栏目，不对其他HTTPS入口降级。"
         }
       ],
       "screenshot_name": "全国大学生信息安全竞赛",
@@ -426,11 +536,86 @@
           "url": "https://www.robotcontest.cn/",
           "name": "智能机器人创意大赛组委会",
           "evidence": "https://www.robotcontest.cn/",
-          "max_pages": 24
+          "max_pages": 24,
+          "list_url": "https://www.robotcontest.cn/prod-api/home/competition/news/website/page?pageNum=1&pageSize=20&newsType=3",
+          "referer": "https://www.robotcontest.cn/home/homepage",
+          "allowed_hosts": [
+            "oss.moocollege.com"
+          ],
+          "json_items_path": "data.records",
+          "json_fields": {
+            "title": [
+              "newsTitle"
+            ],
+            "url": [],
+            "date": [
+              "publishTime"
+            ]
+          },
+          "json_id_field": "newsId",
+          "json_url_template": "https://www.robotcontest.cn/home/newsDetails?newsId={id}",
+          "json_content_field": "newsInfo",
+          "json_attachments": {
+            "field": "newsFiles",
+            "url": "fileUrl",
+            "title": "fileName"
+          },
+          "json_success": {
+            "path": "code",
+            "value": 0
+          },
+          "json_pagination": {
+            "parameter": "pageNum",
+            "current": "data.current",
+            "total_pages": "data.pages"
+          },
+          "detail_fetch": false,
+          "parser_note": "官网为JavaScript页面；使用官网自身公开JSON栏目和公开Referer，按newsId返回可点击官网详情，保留结构化附件和publishTime；无需登录。"
+        },
+        {
+          "url": "https://www.robotcontest.cn/",
+          "name": "智能机器人创意大赛组委会",
+          "evidence": "https://www.robotcontest.cn/",
+          "max_pages": 24,
+          "list_url": "https://www.robotcontest.cn/prod-api/home/competition/news/website/page?pageNum=1&pageSize=20&newsType=4",
+          "referer": "https://www.robotcontest.cn/home/homepage",
+          "allowed_hosts": [
+            "oss.moocollege.com"
+          ],
+          "json_items_path": "data.records",
+          "json_fields": {
+            "title": [
+              "newsTitle"
+            ],
+            "url": [],
+            "date": [
+              "publishTime"
+            ]
+          },
+          "json_id_field": "newsId",
+          "json_url_template": "https://www.robotcontest.cn/home/newsDetails?newsId={id}",
+          "json_content_field": "newsInfo",
+          "json_attachments": {
+            "field": "newsFiles",
+            "url": "fileUrl",
+            "title": "fileName"
+          },
+          "json_success": {
+            "path": "code",
+            "value": 0
+          },
+          "json_pagination": {
+            "parameter": "pageNum",
+            "current": "data.current",
+            "total_pages": "data.pages"
+          },
+          "detail_fetch": false,
+          "parser_note": "官网为JavaScript页面；使用官网自身公开JSON栏目和公开Referer，按newsId返回可点击官网详情，保留结构化附件和publishTime；无需登录。"
         }
       ],
       "screenshot_name": "全国高校智能机器人创意大赛",
-      "aliases": []
+      "aliases": [],
+      "pending_reason": ""
     },
     {
       "id": "software-cup",
@@ -551,9 +736,14 @@
       "group": "国家级",
       "score_group": "national",
       "official_url": "https://dtcup.dtxiaotangren.com/",
-      "pending_reason": "官网公告说明维护升级，公开通知接口需重新核验。",
+      "pending_reason": "原官方域名dtcup.dtxiaotangren.com当前连接中断／维护；未发现可核验的当届组委会替代公告栏目。",
       "sources": [],
-      "screenshot_name": "“大唐杯”全国大学生移动通信5G技术大赛"
+      "screenshot_name": "“大唐杯”全国大学生移动通信5G技术大赛",
+      "verification": {
+        "evidence": [],
+        "conclusion": "原官方域名dtcup.dtxiaotangren.com当前连接中断／维护；未发现可核验的当届组委会替代公告栏目。",
+        "checked_at": "2026-10-03"
+      }
     },
     {
       "id": "robocom",
@@ -562,13 +752,55 @@
       "aliases": [
         "RoboCom",
         "RAICOM",
-        "睿抗"
+        "睿抗",
+        "睿抗机器人开发者大赛"
       ],
       "group": "国家级",
       "score_group": "national",
-      "official_url": "https://www.robocom.com.cn/",
-      "pending_reason": "赛事更名后当前组委会及公开通知入口待核验。",
-      "sources": [],
+      "official_url": "https://www.raicom.com.cn/docs.html",
+      "pending_reason": "",
+      "sources": [
+        {
+          "name": "RAICOM国际公开赛组委会",
+          "url": "https://www.raicom.com.cn/",
+          "list_url": "https://service.raicom.com.cn/doc/list?docType=9&page=1",
+          "evidence": "https://www.raicom.com.cn/docs.html",
+          "allowed_hosts": [
+            "service.raicom.com.cn"
+          ],
+          "json_items_path": "data",
+          "json_fields": {
+            "title": [
+              "docname"
+            ],
+            "url": [],
+            "date": [
+              "created"
+            ]
+          },
+          "json_date_epoch": "milliseconds",
+          "json_id_field": "id",
+          "json_url_template": "https://www.raicom.com.cn/content.html?cid={id}",
+          "json_success": {
+            "path": "code",
+            "value": 0
+          },
+          "json_pagination": {
+            "parameter": "page",
+            "more_if_full": true,
+            "page_size_value": 10
+          },
+          "detail_fetch": true,
+          "keywords": [
+            "睿抗",
+            "RAICOM"
+          ],
+          "exclude": [
+            "青少年"
+          ],
+          "parser_note": "2023组委会文件确认原名RoboCom：https://me.bit.edu.cn/docs//2023-04/a07dcdd2a78043f99777973a38420095.pdf。官网docs.js用created字段显示公告日期；公开doc/list分页，每页10条。"
+        }
+      ],
       "screenshot_name": "RoboCom机器人开发者大赛"
     },
     {
@@ -622,11 +854,64 @@
       "parent": "中国高校计算机大赛",
       "group": "国家级",
       "score_group": "national",
-      "pending_reason": "赛道对应的当前官方通知入口待核验。",
-      "sources": [],
+      "pending_reason": "",
+      "sources": [
+        {
+          "name": "中国高校计算机大赛组委会",
+          "url": "http://www.c4best.cn/",
+          "list_url": "http://www.c4best.cn/api/web/competition/skinNews?pageNum=1",
+          "evidence": "http://www.c4best.cn/",
+          "referer": "http://www.c4best.cn/",
+          "allowed_hosts": [
+            "oss.moocollege.com"
+          ],
+          "request_json": {
+            "groupId": "10016654",
+            "type": 30,
+            "pageNum": 1,
+            "pageSize": 20,
+            "competitionType": 2,
+            "competitionNewsRange": 2
+          },
+          "json_success": {
+            "path": "code",
+            "value": 0
+          },
+          "json_items_path": "data.pageData",
+          "json_fields": {
+            "title": [
+              "newsTitle"
+            ],
+            "url": [],
+            "date": [
+              "publishTime",
+              "newsTime"
+            ]
+          },
+          "json_content_field": "newsInfo",
+          "json_date_epoch": "milliseconds",
+          "json_id_field": "id",
+          "json_url_template": "http://www.c4best.cn/details/{id}?type=30",
+          "json_pagination": {
+            "parameter": "pageNum",
+            "current": "data.pageNum",
+            "total_pages": "data.totalPage"
+          },
+          "json_detail_url_template": "http://www.c4best.cn/api/web/competition/news/detail?id={id}",
+          "json_detail_path": "data",
+          "json_attachment_urls": [
+            "pdfInfo"
+          ],
+          "keywords": [
+            "大数据挑战赛"
+          ],
+          "parser_note": "赛事主办方官网公开POST公告查询接口，分页参数写入JSON请求体；官网详情和公开详情JSON同时核验，保留pdfInfo附件及发布时间。人工智能赛华为页面脚本robots禁止采集时，使用组委会正式通知，不访问被禁止路径。"
+        }
+      ],
       "screenshot_name": "大数据挑战赛",
       "aliases": [],
-      "current_name": null
+      "current_name": null,
+      "official_url": "https://nercbds.tsinghua.edu.cn/bdc.html"
     },
     {
       "id": "c4-ladder",
@@ -637,10 +922,45 @@
       ],
       "group": "国家级",
       "score_group": "national",
-      "pending_reason": "赛道对应的当前官方通知入口待核验。",
-      "sources": [],
+      "pending_reason": "",
+      "sources": [
+        {
+          "name": "团体程序设计天梯赛组委会",
+          "url": "https://gplt.patest.cn/",
+          "list_url": "https://gplt.pintia.cn/api/cached/notifications",
+          "evidence": "https://gplt.patest.cn/notification",
+          "allowed_hosts": [
+            "gplt.pintia.cn",
+            "gpltprod.ptausercontent.com"
+          ],
+          "json_items_path": "data.notifications",
+          "json_fields": {
+            "title": [
+              "title"
+            ],
+            "url": [
+              "href"
+            ],
+            "date": [
+              "publishedAt"
+            ]
+          },
+          "json_success": {
+            "path": "code",
+            "value": 0
+          },
+          "detail_fetch": false,
+          "exclude": [
+            "普及赛",
+            "研讨",
+            "准备会"
+          ],
+          "parser_note": "官网竞赛通知页自身请求的公开缓存接口；publishedAt为发布日期，保留官方附件原文；本科全国赛与普及赛区分。"
+        }
+      ],
       "screenshot_name": "团体程序设计天梯赛",
-      "current_name": null
+      "current_name": null,
+      "official_url": "https://gplt.patest.cn/notification"
     },
     {
       "id": "c4-app",
@@ -651,15 +971,49 @@
       "sources": [
         {
           "url": "https://www.appcontest.net/",
-          "list_url": "https://www.appcontest.net/home/",
+          "list_url": "https://www.appcontest.net/prod-api/home/competition/news/website/page?pageNum=1&pageSize=20&newsType=3",
           "name": "移动应用创新赛组委会",
           "evidence": "https://www.appcontest.net/home/",
-          "max_pages": 24
+          "max_pages": 24,
+          "referer": "https://www.appcontest.net/home/homepage",
+          "allowed_hosts": [
+            "oss.moocollege.com"
+          ],
+          "json_items_path": "data.records",
+          "json_fields": {
+            "title": [
+              "newsTitle"
+            ],
+            "url": [],
+            "date": [
+              "publishTime"
+            ]
+          },
+          "json_id_field": "newsId",
+          "json_url_template": "https://www.appcontest.net/home/newsDetails?newsId={id}",
+          "json_content_field": "newsInfo",
+          "json_attachments": {
+            "field": "newsFiles",
+            "url": "fileUrl",
+            "title": "fileName"
+          },
+          "json_success": {
+            "path": "code",
+            "value": 0
+          },
+          "json_pagination": {
+            "parameter": "pageNum",
+            "current": "data.current",
+            "total_pages": "data.pages"
+          },
+          "detail_fetch": false,
+          "parser_note": "官网为JavaScript页面；使用官网自身公开JSON栏目和公开Referer，按newsId返回可点击官网详情，保留结构化附件和publishTime；无需登录。"
         }
       ],
       "screenshot_name": "移动应用创新赛",
       "aliases": [],
-      "current_name": "中国高校计算机大赛—移动应用创新赛"
+      "current_name": "中国高校计算机大赛—移动应用创新赛",
+      "pending_reason": ""
     },
     {
       "id": "c4-network",
@@ -667,8 +1021,87 @@
       "parent": "中国高校计算机大赛",
       "group": "国家级",
       "score_group": "national",
-      "pending_reason": "赛道对应的当前官方通知入口待核验。",
-      "sources": [],
+      "pending_reason": "",
+      "sources": [
+        {
+          "name": "中国高校计算机大赛网络技术挑战赛组委会",
+          "evidence": "https://jwc.ustb.edu.cn/docs/2026-04/3a226c8fa31444ada8cc28c67cd16208.pdf",
+          "url": "http://net.c4best.cn/",
+          "list_url": "http://net.c4best.cn/prod-api/home/competition/news/website/page?pageNum=1&pageSize=20&newsType=3",
+          "referer": "http://net.c4best.cn/home/homepage",
+          "allowed_hosts": [
+            "oss.moocollege.com"
+          ],
+          "json_items_path": "data.records",
+          "json_fields": {
+            "title": [
+              "newsTitle"
+            ],
+            "url": [],
+            "date": [
+              "publishTime"
+            ]
+          },
+          "json_id_field": "newsId",
+          "json_url_template": "http://net.c4best.cn/home/newsDetails?newsId={id}",
+          "json_content_field": "newsInfo",
+          "json_attachments": {
+            "field": "newsFiles",
+            "url": "fileUrl",
+            "title": "fileName"
+          },
+          "json_success": {
+            "path": "code",
+            "value": 0
+          },
+          "json_pagination": {
+            "parameter": "pageNum",
+            "current": "data.current",
+            "total_pages": "data.pages"
+          },
+          "detail_fetch": false,
+          "parser_note": "官网为JavaScript页面；使用官网自身公开JSON栏目和公开Referer，按newsId返回可点击官网详情，保留结构化附件和publishTime；无需登录。"
+        },
+        {
+          "name": "中国高校计算机大赛网络技术挑战赛组委会",
+          "evidence": "https://jwc.ustb.edu.cn/docs/2026-04/3a226c8fa31444ada8cc28c67cd16208.pdf",
+          "url": "http://net.c4best.cn/",
+          "list_url": "http://net.c4best.cn/prod-api/home/competition/news/website/page?pageNum=1&pageSize=20&newsType=4",
+          "referer": "http://net.c4best.cn/home/homepage",
+          "allowed_hosts": [
+            "oss.moocollege.com"
+          ],
+          "json_items_path": "data.records",
+          "json_fields": {
+            "title": [
+              "newsTitle"
+            ],
+            "url": [],
+            "date": [
+              "publishTime"
+            ]
+          },
+          "json_id_field": "newsId",
+          "json_url_template": "http://net.c4best.cn/home/newsDetails?newsId={id}",
+          "json_content_field": "newsInfo",
+          "json_attachments": {
+            "field": "newsFiles",
+            "url": "fileUrl",
+            "title": "fileName"
+          },
+          "json_success": {
+            "path": "code",
+            "value": 0
+          },
+          "json_pagination": {
+            "parameter": "pageNum",
+            "current": "data.current",
+            "total_pages": "data.pages"
+          },
+          "detail_fetch": false,
+          "parser_note": "官网为JavaScript页面；使用官网自身公开JSON栏目和公开Referer，按newsId返回可点击官网详情，保留结构化附件和publishTime；无需登录。"
+        }
+      ],
       "screenshot_name": "网络技术挑战赛",
       "aliases": [],
       "current_name": null
@@ -680,8 +1113,68 @@
       "group": "国家级",
       "score_group": "national",
       "official_url": "https://developer.huawei.com/home/C4-AI",
-      "pending_reason": "已核验官方赛道页面，动态公告接口待适配。",
-      "sources": [],
+      "pending_reason": "",
+      "sources": [
+        {
+          "name": "中国高校计算机大赛组委会",
+          "url": "http://www.c4best.cn/",
+          "list_url": "http://www.c4best.cn/api/web/competition/skinNews?pageNum=1",
+          "evidence": "http://www.c4best.cn/",
+          "referer": "http://www.c4best.cn/",
+          "allowed_hosts": [
+            "oss.moocollege.com"
+          ],
+          "request_json": {
+            "groupId": "10016654",
+            "type": 30,
+            "pageNum": 1,
+            "pageSize": 20,
+            "competitionType": 2,
+            "competitionNewsRange": 2
+          },
+          "json_success": {
+            "path": "code",
+            "value": 0
+          },
+          "json_items_path": "data.pageData",
+          "json_fields": {
+            "title": [
+              "newsTitle"
+            ],
+            "url": [],
+            "date": [
+              "publishTime",
+              "newsTime"
+            ]
+          },
+          "json_content_field": "newsInfo",
+          "json_date_epoch": "milliseconds",
+          "json_id_field": "id",
+          "json_url_template": "http://www.c4best.cn/details/{id}?type=30",
+          "json_pagination": {
+            "parameter": "pageNum",
+            "current": "data.pageNum",
+            "total_pages": "data.totalPage"
+          },
+          "json_detail_url_template": "http://www.c4best.cn/api/web/competition/news/detail?id={id}",
+          "json_detail_path": "data",
+          "json_attachment_urls": [
+            "pdfInfo"
+          ],
+          "keywords": [
+            "人工智能创意赛"
+          ],
+          "parser_note": "赛事主办方官网公开POST公告查询接口，分页参数写入JSON请求体；官网详情和公开详情JSON同时核验，保留pdfInfo附件及发布时间。人工智能赛华为页面脚本robots禁止采集时，使用组委会正式通知，不访问被禁止路径。"
+        },
+        {
+          "name": "华为2026人工智能创意赛官网",
+          "url": "https://developer.huawei.com/home/C4-AI",
+          "evidence": "https://developer.huawei.com/home/C4-AI",
+          "detail_fetch": false,
+          "parser_missing_reason": "2026官网名单公告使用onclick组件，HTML未给出原文链接；负责链接映射的res-hd.hc-cdn.cn脚本robots.txt禁止采集，当前无法取得可靠原文URL。已接入组委会正式通知作为补充，尚未覆盖此官网动态栏目。",
+          "parser_note": "仅检查robots允许的官网HTML，不访问被禁止的链接映射脚本，也不伪造原文URL或发布日期。组委会历史公开接口是补充来源，不代表本栏目已完成采集。"
+        }
+      ],
       "screenshot_name": "人工智能创意赛",
       "aliases": [],
       "current_name": null
@@ -692,11 +1185,17 @@
       "parent": "中国高校计算机大赛",
       "group": "国家级",
       "score_group": "national",
-      "pending_reason": "赛道对应的当前官方通知入口待核验。",
+      "pending_reason": "2026中国高校计算机大赛官网列出其他现行赛道，但未列微信小程序应用开发赛；未核验该截图赛道近一年公开公告，不把AIGC或智能交互创新赛视为同一比赛，也不宣称停办。",
       "sources": [],
       "screenshot_name": "微信小程序应用开发赛",
       "aliases": [],
-      "current_name": null
+      "current_name": null,
+      "official_url": "http://www.c4best.cn/",
+      "verification": {
+        "evidence": [],
+        "conclusion": "2026中国高校计算机大赛官网列出其他现行赛道，但未列微信小程序应用开发赛；未核验该截图赛道近一年公开公告，不把AIGC或智能交互创新赛视为同一比赛，也不宣称停办。",
+        "checked_at": "2026-10-03"
+      }
     },
     {
       "id": "lanqiao",
@@ -707,8 +1206,51 @@
       "group": "国家级",
       "score_group": "lanqiao",
       "official_url": "https://dasai.lanqiao.cn/",
-      "pending_reason": "官网通知公开接口待核验，不以视觉艺术设计赛替代软件赛事。",
-      "sources": [],
+      "pending_reason": "",
+      "sources": [
+        {
+          "name": "蓝桥杯大赛组委会",
+          "url": "https://dasai.lanqiao.cn/",
+          "evidence": "https://dasai.lanqiao.cn/notices/?progid=20",
+          "list_url": "https://www.guoxinlanqiao.com/api/news/find?progid=20&pageno=1&pagesize=20&status=1",
+          "allowed_hosts": [
+            "www.guoxinlanqiao.com"
+          ],
+          "json_items_path": "datalist",
+          "json_fields": {
+            "title": [
+              "title"
+            ],
+            "url": [],
+            "date": [
+              "publishTime"
+            ]
+          },
+          "json_id_field": "nnid",
+          "json_url_template": "https://dasai.lanqiao.cn/notices/{id}/",
+          "json_success": {
+            "path": "code",
+            "value": 200
+          },
+          "json_pagination": {
+            "parameter": "pageno",
+            "total_items": "total",
+            "size_parameter": "pagesize"
+          },
+          "detail_fetch": false,
+          "exclude": [
+            "视觉艺术",
+            "主视觉",
+            "IP文创",
+            "培训",
+            "认证",
+            "研讨",
+            "颁奖典礼",
+            "巡展"
+          ],
+          "parser_note": "官网实际跨域公开新闻接口，保留软件/信息技术参赛公告；排除视觉艺术专项赛、培训认证及一般宣传。原文沿用官网/notices/编号/。"
+        }
+      ],
       "screenshot_name": "蓝桥杯全国软件和信息技术专业人才大赛",
       "current_name": null
     },
@@ -721,10 +1263,15 @@
       "group": "国家级",
       "score_group": "general",
       "official_url": "https://ccvr2024.aconf.org/",
-      "pending_reason": "已查到历史届次官网，近一年官方赛事入口待核验。",
+      "pending_reason": "仅核验到2024届历史官网；2026届候选入口返回404。近一年组委会公开公告入口仍未确认，历史会务网站不作当前公告源。",
       "sources": [],
       "screenshot_name": "中国虚拟现实大赛",
-      "current_name": null
+      "current_name": null,
+      "verification": {
+        "evidence": [],
+        "conclusion": "仅核验到2024届历史官网；2026届候选入口返回404。近一年组委会公开公告入口仍未确认，历史会务网站不作当前公告源。",
+        "checked_at": "2026-10-03"
+      }
     },
     {
       "id": "math",
@@ -758,11 +1305,16 @@
       "name": "人工智能未来设计大赛",
       "group": "国家级",
       "score_group": "general",
-      "pending_reason": "当前赛事通知入口及与截图名称的对应关系待核验。",
+      "pending_reason": "查到人工智能未来设计的文旅应用赛、工业文化创新相关专项入口；尚无充分官方依据唯一对应截图赛事及届次，避免将同名专项赛误当综合赛事。",
       "sources": [],
       "screenshot_name": "人工智能未来设计大赛",
       "aliases": [],
-      "current_name": null
+      "current_name": null,
+      "verification": {
+        "evidence": [],
+        "conclusion": "查到人工智能未来设计的文旅应用赛、工业文化创新相关专项入口；尚无充分官方依据唯一对应截图赛事及届次，避免将同名专项赛误当综合赛事。",
+        "checked_at": "2026-10-03"
+      }
     },
     {
       "id": "digital-skills",
@@ -771,11 +1323,28 @@
       "group": "国家级",
       "score_group": "general",
       "restriction": "办公软件赛道仅国赛阶段加分。",
-      "pending_reason": "当前主办方及公开赛事通知入口待核验。",
-      "sources": [],
+      "pending_reason": "",
+      "sources": [
+        {
+          "name": "全国大学生数字技能应用大赛组委会",
+          "url": "http://www.cnccac.com/",
+          "evidence": "https://www.lzjtu.edu.cn/info/1062/16759.htm",
+          "allowed_hosts": [
+            "cnccac.oss-cn-zhangjiakou.aliyuncs.com"
+          ],
+          "keywords": [
+            "数字技能应用"
+          ],
+          "exclude": [
+            "互联网+技能"
+          ],
+          "parser_note": "兰州交通大学2026年正式参赛通知及四川农业大学2023年正式通知指向同一官网；仅接入数字技能应用赛事，保留截图办公软件仅国赛阶段加分限制。"
+        }
+      ],
       "screenshot_name": "新工科创新数字技能竞赛—数字技能应用大赛",
       "aliases": [],
-      "current_name": null
+      "current_name": "全国大学生数字技能应用大赛",
+      "official_url": "http://www.cnccac.com/"
     },
     {
       "id": "ncccu",
@@ -806,10 +1375,16 @@
       "sources": [
         {
           "url": "https://www.cmit.cn/",
-          "list_url": "https://www.cmit.cn/html/tongzhigonggao/",
           "name": "数字媒体竞赛组委会",
           "evidence": "https://www.cmit.cn/html/tongzhigonggao/show-144-45738-1.html",
-          "max_pages": 24
+          "max_pages": 24,
+          "parser_note": "原/html/tongzhigonggao/目录返回403，官网主页可直接提供近期正式公告。当前接入主页可达公告及详情，归档目录仍受限，不能保证覆盖无法访问的历史页。",
+          "path_prefix": "/html/tongzhigonggao/index",
+          "exclude": [
+            "院校联系人",
+            "培训",
+            "研讨"
+          ]
         }
       ],
       "screenshot_name": "全国大学生数字媒体科技作品及创意竞赛",
@@ -831,7 +1406,34 @@
           "url": "https://csc.xxsuyang.com/",
           "name": "大学生信息素养大赛官方平台",
           "evidence": "https://www.swu.edu.cn/info/1066/3554.htm",
-          "max_pages": 24
+          "max_pages": 24,
+          "list_url": "https://jsgateway.zhixinst.com/SCC/Website/GetNewsPageList?page=1&rows=20&type=1&kind=csc2025",
+          "allowed_hosts": [
+            "jsgateway.zhixinst.com",
+            "static.zxhnzq.com"
+          ],
+          "referer": "https://csc.xxsuyang.com/",
+          "json_items_path": "data.list",
+          "json_fields": {
+            "title": [
+              "title"
+            ],
+            "url": [
+              "url"
+            ],
+            "date": []
+          },
+          "json_attachment_original": true,
+          "json_title_from_attachment": true,
+          "min_title_length": 4,
+          "json_pagination": {
+            "parameter": "page",
+            "current": "data.pageNumber",
+            "total_items": "data.total",
+            "page_size": "data.pageSize"
+          },
+          "detail_fetch": false,
+          "parser_note": "官网公开赛事公告接口(type=1)，正文附件为官方原文；接口仅有创建/更新时间，不能确认发布日期，因此标注发布时间待核验。排除培训、新闻报道。"
         }
       ],
       "screenshot_name": "全国大学生信息素养大赛"
@@ -844,10 +1446,18 @@
       ],
       "group": "其他赛事",
       "score_group": "regional",
-      "pending_reason": "重庆赛区组委会正式公告入口待核验。",
+      "pending_reason": "重庆赛区组委会正式公告入口待核验。已检查市教委官方公告栏目：robots.txt当前不允许采集，不能绕过；需官方允许的公开接口或赛事组委会独立栏目。",
       "sources": [],
       "screenshot_name": "“TI杯”重庆市大学生电子设计竞赛",
-      "current_name": null
+      "current_name": null,
+      "official_url": "https://jw.cq.gov.cn/zwxx_209/gggs/",
+      "verification": {
+        "evidence": [
+          "https://jwc.cqnu.edu.cn/__local/A/71/CF/3F07C2572494247B721D041C18F_E16678F1_425B3.pdf"
+        ],
+        "conclusion": "重庆赛区组委会正式公告入口待核验。已检查市教委官方公告栏目：robots.txt当前不允许采集，不能绕过；需官方允许的公开接口或赛事组委会独立栏目。",
+        "checked_at": "2026-10-03"
+      }
     },
     {
       "id": "cq-programming",
@@ -865,33 +1475,56 @@
       "name": "重庆市数据库大赛",
       "group": "其他赛事",
       "score_group": "regional",
-      "pending_reason": "需核验与数据库应用程序设计大赛的名称关系及主办方入口。",
+      "pending_reason": "需核验与数据库应用程序设计大赛的名称关系及主办方入口。已检查市教委官方公告栏目：robots.txt当前不允许采集，不能绕过；需官方允许的公开接口或赛事组委会独立栏目。",
       "sources": [],
       "screenshot_name": "重庆市数据库大赛",
       "aliases": [],
-      "current_name": null
+      "current_name": null,
+      "official_url": "https://jw.cq.gov.cn/zwxx_209/gggs/",
+      "verification": {
+        "evidence": [
+          "https://jwc.cqnu.edu.cn/__local/A/71/CF/3F07C2572494247B721D041C18F_E16678F1_425B3.pdf"
+        ],
+        "conclusion": "需核验与数据库应用程序设计大赛的名称关系及主办方入口。已检查市教委官方公告栏目：robots.txt当前不允许采集，不能绕过；需官方允许的公开接口或赛事组委会独立栏目。",
+        "checked_at": "2026-10-03"
+      }
     },
     {
       "id": "cq-security",
       "name": "重庆市大学生信息安全竞赛",
       "group": "其他赛事",
       "score_group": "regional",
-      "pending_reason": "当前重庆赛区主办方正式公告入口待核验。",
+      "pending_reason": "当前重庆赛区主办方正式公告入口待核验。已检查市教委官方公告栏目：robots.txt当前不允许采集，不能绕过；需官方允许的公开接口或赛事组委会独立栏目。",
       "sources": [],
       "screenshot_name": "重庆市大学生信息安全竞赛",
       "aliases": [],
-      "current_name": null
+      "current_name": null,
+      "official_url": "https://jw.cq.gov.cn/zwxx_209/gggs/",
+      "verification": {
+        "evidence": [
+          "https://jwc.cqnu.edu.cn/__local/A/71/CF/3F07C2572494247B721D041C18F_E16678F1_425B3.pdf"
+        ],
+        "conclusion": "当前重庆赛区主办方正式公告入口待核验。已检查市教委官方公告栏目：robots.txt当前不允许采集，不能绕过；需官方允许的公开接口或赛事组委会独立栏目。",
+        "checked_at": "2026-10-03"
+      }
     },
     {
       "id": "bayu",
       "name": "“巴渝杯”大学生网络安全联赛",
       "group": "其他赛事",
       "score_group": "bayu",
-      "pending_reason": "需核验网络安全联赛入口，排除同名技能大赛。",
+      "pending_reason": "承办方2024官方报道确认大学生网络安全联赛身份，但近一年仅发现同名职业技能赛和其他“山城杯”赛事；当届联赛参赛公告未核验，宣传回顾不入库。",
       "sources": [],
       "screenshot_name": "“巴渝杯”大学生网络安全联赛",
       "aliases": [],
-      "current_name": null
+      "current_name": null,
+      "verification": {
+        "evidence": [
+          "https://ce.cqrk.edu.cn/2024_09/30_18/content-46994.shtml"
+        ],
+        "conclusion": "承办方2024官方报道确认大学生网络安全联赛身份，但近一年仅发现同名职业技能赛和其他“山城杯”赛事；当届联赛参赛公告未核验，宣传回顾不入库。",
+        "checked_at": "2026-10-03"
+      }
     },
     {
       "id": "certification",
@@ -906,10 +1539,14 @@
       "restriction": "网赛一、二阶段与西南大学数学建模赛三个比赛只取最高奖项，只加一次。",
       "sources": [
         {
-          "url": "https://www.tzmcm.cn/",
+          "url": "http://www.tzmcm.cn/",
           "name": "数学中国网络挑战赛组委会",
           "evidence": "https://www.tzmcm.cn/tz.html",
-          "max_pages": 12
+          "max_pages": 12,
+          "transport_note": "原HTTPS握手中断；官方公开HTTP主页可用。附件含中文文件名，原文链接按UTF-8编码；不从文件名推算发布日期。",
+          "exclude": [
+            "系统登陆地址"
+          ]
         }
       ],
       "screenshot_name": "“认证杯”全国大学生数学建模网络挑战赛"
@@ -920,11 +1557,29 @@
       "group": "其他赛事",
       "score_group": "certification",
       "restriction": "与认证杯网赛一、二阶段三个比赛只取最高奖项，只加一次。",
-      "pending_reason": "独立于校园采集，需核验校内数学建模赛的正式发布栏目。",
-      "sources": [],
+      "pending_reason": "",
+      "sources": [
+        {
+          "name": "西南大学创新创业学院／校赛组织单位",
+          "url": "https://cxcy.swu.edu.cn/",
+          "list_url": "https://cxcy.swu.edu.cn/sylm/tzgg.htm",
+          "evidence": "https://cxcy.swu.edu.cn/sylm/tzgg/48.htm",
+          "keywords": [
+            "数学建模"
+          ],
+          "exclude": [
+            "全国大学生",
+            "统计建模"
+          ],
+          "path_prefix": "/sylm/tzgg/",
+          "verified_empty_listing": true,
+          "parser_note": "主办／组织单位官方栏目2026-04-29发布第二十届校赛通知，单独采集校赛；不把全国数学建模参赛或培训通知混为校赛。独立于校园采集表与任务状态。"
+        }
+      ],
       "screenshot_name": "西南大学数学建模赛",
       "aliases": [],
-      "current_name": null
+      "current_name": null,
+      "official_url": "https://cxcy.swu.edu.cn/sylm/tzgg.htm"
     },
     {
       "id": "international-chinese-debate",
@@ -1013,15 +1668,17 @@
       "sources": [
         {
           "name": "国家版权局通知公告",
-          "url": "https://www.ncac.gov.cn/",
-          "list_url": "https://www.ncac.gov.cn/xxfb/tzgg/",
+          "url": "http://www.ncac.gov.cn/",
+          "list_url": "http://www.ncac.gov.cn/xxfb/tzgg/",
           "evidence": "https://www.ncac.gov.cn/xxfb/tzgg/201807/t20180705_50449.html",
           "keywords": [
             "全国大学生版权征文"
           ],
           "exclude": [],
           "path_prefix": "/xxfb/",
-          "parser_note": "国家版权局2018年正式通知核验赛事身份；当前栏目需实际核验可解析性与最近365天公告，不将历史通知回填。"
+          "parser_note": "国家版权局2018年正式通知核验赛事身份；当前栏目需实际核验可解析性与最近365天公告，不将历史通知回填。",
+          "transport_note": "当前国家版权局入口会在HTTP/HTTPS间跳转；已修复robots重定向递归，显式核验官方HTTP入口，仍遵守最终页面robots。",
+          "verified_empty_listing": true
         }
       ],
       "pending_reason": "",
@@ -1038,14 +1695,18 @@
       "scores": [],
       "restriction": "",
       "sources": [],
-      "pending_reason": "高校正式资料提及“中国法研杯／法研灯塔”司法大数据征文赛道，但尚未从主办方核验与截图的具体身份及当前公开入口。",
+      "pending_reason": "已由西南大学法学院及中国司法大数据研究院正式资料确认“法研灯塔”司法大数据征文赛道；主办方公开说明链接data.court.gov.cn/pages/laic.html，尚未核验当前征文公告栏目与其公开数据接口。不能用整场法研杯AI开发赛替代征文赛。",
       "verification": {
         "checked_on": "2026-10-02",
         "evidence": [
-          "https://law.csu.edu.cn/info/1102/5242.htm"
+          "https://law.csu.edu.cn/info/1102/5242.htm",
+          "https://law.swu.edu.cn/info/1089/6581.htm",
+          "https://t.cjbdi.com/m/info/O6776T"
         ],
-        "conclusion": "高校正式资料提及“中国法研杯／法研灯塔”司法大数据征文赛道，但尚未从主办方核验与截图的具体身份及当前公开入口。"
-      }
+        "conclusion": "已由西南大学法学院及中国司法大数据研究院正式资料确认“法研灯塔”司法大数据征文赛道；主办方公开说明链接data.court.gov.cn/pages/laic.html，尚未核验当前征文公告栏目与其公开数据接口。不能用整场法研杯AI开发赛替代征文赛。",
+        "checked_at": "2026-10-03"
+      },
+      "official_url": "https://www.fyopen.com/"
     },
     {
       "id": "yingchunhua-debate",
@@ -1179,13 +1840,14 @@
       "scores": [],
       "restriction": "",
       "sources": [],
-      "pending_reason": "学院官方报道核验“中伦文德杯”法律文书大赛举办筹备；尚未找到公开参赛公告及现届冠名依据，筹备报道不入库。",
+      "pending_reason": "学院2023-07-09官方报道确认“廌鸣·中伦文德杯”举办情况，但未找到当前法律文书写作赛的公开报名、规则或成绩通知。历史捐赠报道不作为参赛公告。",
       "verification": {
         "checked_on": "2026-10-02",
         "evidence": [
           "https://law.swu.edu.cn/info/1003/5691.htm"
         ],
-        "conclusion": "学院官方报道核验“中伦文德杯”法律文书大赛举办筹备；尚未找到公开参赛公告及现届冠名依据，筹备报道不入库。"
+        "conclusion": "学院2023-07-09官方报道确认“廌鸣·中伦文德杯”举办情况，但未找到当前法律文书写作赛的公开报名、规则或成绩通知。历史捐赠报道不作为参赛公告。",
+        "checked_at": "2026-10-03"
       }
     },
     {
@@ -1255,13 +1917,15 @@
       "scores": [],
       "restriction": "",
       "sources": [],
-      "pending_reason": "学院官方教师资料提及“廌鸣杯”学术科技作品大赛，保留截图“鹰鸣杯”名称及官方别名；未找到可用公开参赛公告栏目。",
+      "pending_reason": "已查到学院2026-07-03“廌鸣杯”学术论文大赛正式通知，但截图列名为学术科技作品竞赛；当前不能证明二者同一评分赛事，按此次不接入论文类的范围保留待核验。",
       "verification": {
         "checked_on": "2026-10-02",
         "evidence": [
-          "https://law.swu.edu.cn/info/1139/2386.htm"
+          "https://law.swu.edu.cn/info/1139/2386.htm",
+          "https://law.swu.edu.cn/info/1003/8026.htm"
         ],
-        "conclusion": "学院官方教师资料提及“廌鸣杯”学术科技作品大赛，保留截图“鹰鸣杯”名称及官方别名；未找到可用公开参赛公告栏目。"
+        "conclusion": "已查到学院2026-07-03“廌鸣杯”学术论文大赛正式通知，但截图列名为学术科技作品竞赛；当前不能证明二者同一评分赛事，按此次不接入论文类的范围保留待核验。",
+        "checked_at": "2026-10-03"
       }
     },
     {
