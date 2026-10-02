@@ -4,6 +4,7 @@ WORKDIR /app
 RUN useradd --uid 10001 --create-home monitor && mkdir /state && chown monitor:monitor /state
 COPY backend /app/backend
 COPY data/sites.json /app/data/sites.json
+COPY data/competitions.json /app/data/competitions.json
 USER monitor
 EXPOSE 8765
 CMD ["python", "-m", "backend.server", "--host", "0.0.0.0", "--db", "/state/monitor.sqlite3"]
