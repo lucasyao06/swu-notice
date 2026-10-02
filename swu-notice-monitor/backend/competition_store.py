@@ -171,6 +171,8 @@ class CompetitionStore:
             item['last_checked'] = max((s['last_checked'] for s in registered if s['last_checked']), default=None)
             item['status'] = '待核验' if not registered else next((s['status'] for s in registered if s['status'] != '正常'), '正常')
             item['error'] = '；'.join(s['error'] for s in registered if s['error']) or original.get('pending_reason','')
+            if item['status']=='正常' and not item['notice_count'] and not item['error']:
+                item['error']='已成功检查可达官方栏目，最近365天未保存可验证的对应赛事公告；历史公告不回填，不代表赛事停办。'
             item['sources'] = [{**s['config'], 'id': s['id'], 'status': s['status'], 'error': s['error'],
                                 'baseline': bool(s['baseline']), 'last_checked': s['last_checked']} for s in registered]
             items.append(item)
