@@ -29,6 +29,8 @@ export function createCompetitionDemoRepository(){
   {id:2,competition_id:'ccpc',competition_name:'中国大学生程序设计竞赛（CCPC）',title:'示例：CCPC比赛赛程安排',kind:'赛程',published_at:'2026-09-21',date_verified:true},
   {id:3,competition_id:'robotac',competition_name:'全国大学生机器人大赛-RoboTac',title:'示例：ROBOTAC获奖名单公示',kind:'获奖公示',published_at:'',date_verified:false},
   {id:4,competition_id:'national-mootcourt',competition_name:'全国大学生模拟法庭竞赛',title:'示例：模拟法庭竞赛报名通知',kind:'报名',published_at:'2026-09-20',date_verified:true},
+  {id:5,competition_id:'mechanical-design',competition_name:'全国大学生机械创新设计大赛',title:'示例：机械创新设计大赛参赛通知',kind:'报名',published_at:'2026-09-19',date_verified:true},
+  {id:6,competition_id:'hanhong-academic',competition_name:'“含弘杯”学术科技作品竞赛',title:'示例：含弘杯作品提交安排通知',kind:'赛程',published_at:'2026-09-18',date_verified:true},
  ].map(n=>({...n,url:null,attachments:[],read:false,favorite:false,collected_at:'2026-09-22',is_demo:true}));
  const messages=notices.slice(0,2).map(n=>({id:n.id,notice_id:n.id,title:n.title,competition_id:n.competition_id,competition_name:n.competition_name,created_at:n.collected_at,read:false}));
  let settings={interval_minutes:300,scheduler_enabled:false};

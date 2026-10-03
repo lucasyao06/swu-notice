@@ -1275,8 +1275,8 @@
     },
     {
       "id": "math",
-      "name": "中国大学生数学竞赛（非数学类）",
-      "current_name": "全国大学生数学竞赛（非数学类）",
+      "name": "全国大学生数学竞赛",
+      "current_name": "全国大学生数学竞赛",
       "group": "国家级",
       "score_group": "general",
       "restriction": "截图列明非数学类；公告同时包含数学类时请按原文核对参赛组别。",
@@ -1298,7 +1298,10 @@
         }
       ],
       "screenshot_name": "中国大学生数学竞赛（非数学类）",
-      "aliases": []
+      "aliases": [
+        "全国大学生数学竞赛（非数学类）",
+        "中国大学生数学竞赛（非数学类）"
+      ]
     },
     {
       "id": "ai-future",
@@ -1962,6 +1965,546 @@
       ],
       "pending_reason": "",
       "official_url": "https://www.tiaozhanbei.net/"
+    },
+    {
+      "id": "engineering-electronic-unconfirmed",
+      "name": "电子科技竞赛",
+      "screenshot_name": "电子科技竞赛",
+      "current_name": null,
+      "aliases": [],
+      "group": "国家级",
+      "awards": [],
+      "scores": [],
+      "restriction": "",
+      "sources": [],
+      "pending_reason": "截图未提供正式全名、主办方及官网；“电子科技竞赛”不能仅凭字面并入电子设计竞赛，赛事身份待学院确认。",
+      "verification": {
+        "conclusion": "截图未提供正式全名、主办方及官网；“电子科技竞赛”不能仅凭字面并入电子设计竞赛，赛事身份待学院确认。",
+        "evidence": []
+      }
+    },
+    {
+      "id": "cq-innovation-method",
+      "name": "重庆市创新方法大赛",
+      "screenshot_name": "重庆市创新方法大赛",
+      "current_name": null,
+      "aliases": [],
+      "group": "其他赛事",
+      "awards": [],
+      "scores": [],
+      "restriction": "",
+      "sources": [],
+      "pending_reason": "重庆市大学生与企业创新方法赛事并存，截图未写大学生限定；需核验具体身份和官方公告栏目，不能套用企业赛事。",
+      "verification": {
+        "conclusion": "重庆市大学生与企业创新方法赛事并存，截图未写大学生限定；需核验具体身份和官方公告栏目，不能套用企业赛事。",
+        "evidence": [
+          "https://www.cqast.cn/htm/1407737053083799552/web/content_1407737053083799552.htm",
+          "https://www.cqast.cn/htm/1514207988275978240/web/content_1514207988275978240.htm"
+        ]
+      }
+    },
+    {
+      "id": "neccs",
+      "name": "全国大学生英语竞赛",
+      "screenshot_name": "全国大学生英语竞赛",
+      "current_name": null,
+      "aliases": [
+        "NECCS",
+        "全国大英赛"
+      ],
+      "group": "国家级",
+      "awards": [],
+      "scores": [],
+      "restriction": "",
+      "sources": [
+        {
+          "name": "全国大学生英语竞赛组委会 · 竞赛新闻中的正式参赛公告",
+          "url": "https://www.chinaneccs.cn/",
+          "list_url": "https://www.chinaneccs.cn/api/v1/article/lists/neccsnews?page=1&limit=15",
+          "evidence": "https://www.chinaneccs.cn/pages/list/list?type=neccsnews",
+          "request_form": {
+            "limit": 15,
+            "page": 1
+          },
+          "json_success": {
+            "path": "code",
+            "value": 0
+          },
+          "json_items_path": "data.list",
+          "json_fields": {
+            "title": [
+              "title"
+            ],
+            "url": [],
+            "date": [
+              "publish_time"
+            ]
+          },
+          "json_date_epoch": "seconds",
+          "json_url_template": "https://www.chinaneccs.cn/pages/list/list?type=neccsnews&id={id}&Cid=1",
+          "json_detail_url_template": "https://www.chinaneccs.cn/api/v1/article/detail/{id}",
+          "json_detail_identity_from_request": true,
+          "json_list_content_is_excerpt": true,
+          "json_attachment_urls": [
+            "file_url"
+          ],
+          "json_pagination": {
+            "parameter": "page",
+            "total_items": "data.total",
+            "size_parameter": "limit"
+          },
+          "keywords": [
+            "大学生英语竞赛",
+            "大英赛"
+          ],
+          "exclude": [
+            "教师",
+            "学术年会",
+            "论文评选",
+            "顺利举行",
+            "顺利闭幕",
+            "决赛落幕",
+            "即将开赛"
+          ],
+          "path_prefix": "/api/v1/article/lists/neccsnews",
+          "max_pages": 24,
+          "parser_note": "由官网实际请求核验表单POST分页（limit/page），GET不会分页；列表正文为摘要，须读取详情保留附件。官网详情不返回ID，须验证标题一致后使用请求ID关联原文。仅采集参赛公告、规则及获奖名单，排除教师比赛和宣传报道。"
+        },
+        {
+          "name": "全国大学生英语竞赛组委会 · 获奖名单",
+          "url": "https://www.chinaneccs.cn/",
+          "list_url": "https://www.chinaneccs.cn/api/v1/article/lists/neccsprize?page=1&limit=15",
+          "evidence": "https://www.chinaneccs.cn/pages/list/list?type=neccsprize",
+          "request_form": {
+            "limit": 15,
+            "page": 1
+          },
+          "json_success": {
+            "path": "code",
+            "value": 0
+          },
+          "json_items_path": "data.list",
+          "json_fields": {
+            "title": [
+              "title"
+            ],
+            "url": [],
+            "date": [
+              "publish_time"
+            ]
+          },
+          "json_date_epoch": "seconds",
+          "json_url_template": "https://www.chinaneccs.cn/pages/list/list?type=neccsprize&id={id}&Cid=1",
+          "json_detail_url_template": "https://www.chinaneccs.cn/api/v1/article/detail/{id}",
+          "json_detail_identity_from_request": true,
+          "json_list_content_is_excerpt": true,
+          "json_attachment_urls": [
+            "file_url"
+          ],
+          "json_pagination": {
+            "parameter": "page",
+            "total_items": "data.total",
+            "size_parameter": "limit"
+          },
+          "keywords": [
+            "大学生英语竞赛",
+            "大英赛"
+          ],
+          "exclude": [
+            "教师",
+            "学术年会",
+            "论文评选",
+            "顺利举行",
+            "顺利闭幕",
+            "决赛落幕",
+            "即将开赛"
+          ],
+          "path_prefix": "/api/v1/article/lists/neccsprize",
+          "max_pages": 24,
+          "parser_note": "由官网实际请求核验表单POST分页（limit/page），GET不会分页；列表正文为摘要，须读取详情保留附件。官网详情不返回ID，须验证标题一致后使用请求ID关联原文。仅采集参赛公告、规则及获奖名单，排除教师比赛和宣传报道。"
+        },
+        {
+          "name": "全国大学生英语竞赛组委会 · 竞赛规则与命题大纲",
+          "url": "https://www.chinaneccs.cn/",
+          "list_url": "https://www.chinaneccs.cn/api/v1/article/lists/aboutneccs?page=1&limit=15",
+          "evidence": "https://www.chinaneccs.cn/pages/list/list?type=aboutneccs",
+          "request_form": {
+            "limit": 15,
+            "page": 1
+          },
+          "json_success": {
+            "path": "code",
+            "value": 0
+          },
+          "json_items_path": "data.list",
+          "json_fields": {
+            "title": [
+              "title"
+            ],
+            "url": [],
+            "date": [
+              "publish_time"
+            ]
+          },
+          "json_date_epoch": "seconds",
+          "json_url_template": "https://www.chinaneccs.cn/pages/list/list?type=aboutneccs&id={id}&Cid=1",
+          "json_detail_url_template": "https://www.chinaneccs.cn/api/v1/article/detail/{id}",
+          "json_detail_identity_from_request": true,
+          "json_list_content_is_excerpt": true,
+          "json_attachment_urls": [
+            "file_url"
+          ],
+          "json_pagination": {
+            "parameter": "page",
+            "total_items": "data.total",
+            "size_parameter": "limit"
+          },
+          "keywords": [
+            "大学生英语竞赛",
+            "大英赛"
+          ],
+          "exclude": [
+            "教师",
+            "学术年会",
+            "论文评选",
+            "顺利举行",
+            "顺利闭幕",
+            "决赛落幕",
+            "即将开赛"
+          ],
+          "path_prefix": "/api/v1/article/lists/aboutneccs",
+          "max_pages": 24,
+          "parser_note": "由官网实际请求核验表单POST分页（limit/page），GET不会分页；列表正文为摘要，须读取详情保留附件。官网详情不返回ID，须验证标题一致后使用请求ID关联原文。仅采集参赛公告、规则及获奖名单，排除教师比赛和宣传报道。"
+        }
+      ],
+      "pending_reason": "",
+      "official_url": "https://www.chinaneccs.cn/"
+    },
+    {
+      "id": "cq-mobile-robot",
+      "name": "建工地产杯重庆市移动机器人大赛",
+      "screenshot_name": "建工地产杯重庆市移动机器人大赛",
+      "current_name": null,
+      "aliases": [],
+      "group": "其他赛事",
+      "awards": [],
+      "scores": [],
+      "restriction": "",
+      "sources": [],
+      "pending_reason": "学校官方教师介绍可辅助核验历史名称，但未发现可确认的当届组委会公开参赛公告入口；历史获奖报道不入库。",
+      "verification": {
+        "conclusion": "学校官方教师介绍可辅助核验历史名称，但未发现可确认的当届组委会公开参赛公告入口；历史获奖报道不入库。",
+        "evidence": [
+          "https://ceie.swu.edu.cn/info/1115/4018.htm"
+        ]
+      }
+    },
+    {
+      "id": "bochuang",
+      "name": "“博创杯”全国大学生嵌入式物联网设计大赛",
+      "screenshot_name": "“博创杯”全国大学生嵌入式物联网设计大赛",
+      "current_name": "“博创杯”全国大学生嵌入式人工智能设计大赛",
+      "aliases": [
+        "博创杯全国大学生嵌入式设计大赛",
+        "博创杯全国大学生嵌入式物联网设计大赛"
+      ],
+      "group": "国家级",
+      "awards": [],
+      "scores": [],
+      "restriction": "",
+      "sources": [
+        {
+          "name": "中国电子学会嵌入式系统赛事中心",
+          "url": "https://www.cie-eec.cn/",
+          "list_url": "https://www.cie-eec.cn/CompetitionDetail",
+          "evidence": "https://www.cie-eec.cn/Home/History/a513a0aa-fcff-4767-b10c-f5e15f1315a9",
+          "keywords": [
+            "博创杯",
+            "博创·"
+          ],
+          "exclude": [
+            "新闻",
+            "胜利闭幕",
+            "成功举办"
+          ],
+          "parser_note": "赛事中心保留博创杯物联网及后续嵌入式人工智能历届赛事；不把另列的中国高校计算机大赛嵌入式设计赛自动视为同一赛事。",
+          "transport_note": "本机HTTPS握手出现UNEXPECTED_EOF，HTTP入口也跳至HTTPS；来源可核验，但本机采集暂受网络限制。"
+        }
+      ],
+      "pending_reason": "",
+      "official_url": "https://www.cie-eec.cn/"
+    },
+    {
+      "id": "agricultural-equipment",
+      "name": "“东方红”杯全国大学生智能农业装备创新大赛",
+      "screenshot_name": "“东方红”杯全国大学生智能农业装备创新大赛",
+      "current_name": "国际大学生智能农业装备创新大赛",
+      "aliases": [
+        "东方红杯全国大学生智能农业装备创新大赛",
+        "国际大学生智能农装大赛"
+      ],
+      "group": "国家级",
+      "awards": [],
+      "scores": [],
+      "restriction": "",
+      "sources": [
+        {
+          "name": "国际大学生智能农业装备创新大赛官方网站（江苏大学）",
+          "url": "https://uiaec.ujs.edu.cn/",
+          "list_url": "https://uiaec.ujs.edu.cn/",
+          "evidence": "https://uiaec.ujs.edu.cn/news_show.php?id=1",
+          "keywords": [
+            "智能农业装备",
+            "智能农装"
+          ],
+          "exclude": [
+            "成功举办",
+            "隆重举行",
+            "胜利闭幕"
+          ],
+          "parser_note": "官方历史栏目核验“东方红杯”与现用国际大学生智能农业装备创新大赛的沿革；截图原赛道适用范围仍需学院确认。",
+          "transport_note": "本机访问官网及通知入口返回HTTP 483；不绕过访问限制，不使用第三方赛事推广页替代。"
+        }
+      ],
+      "pending_reason": "",
+      "official_url": "https://uiaec.ujs.edu.cn/"
+    },
+    {
+      "id": "mechanical-design",
+      "name": "全国大学生机械创新设计大赛",
+      "screenshot_name": "全国大学生机械创新设计大赛",
+      "current_name": null,
+      "aliases": [],
+      "group": "国家级",
+      "awards": [],
+      "scores": [],
+      "restriction": "",
+      "sources": [
+        {
+          "name": "第十二届全国大学生机械创新设计大赛承办方（哈尔滨工业大学）",
+          "url": "https://12umic.hit.edu.cn/",
+          "list_url": "https://12umic.hit.edu.cn/20012/list.htm",
+          "evidence": "https://12umic.hit.edu.cn/2025/0321/c20012a364782/page.htm",
+          "keywords": [
+            "机械创新设计大赛"
+          ],
+          "exclude": [
+            "线上会议",
+            "筹备",
+            "工作解读"
+          ],
+          "path_prefix": "/20012/",
+          "max_pages": 24,
+          "parser_note": "当届正式通知明确哈尔滨工业大学为承办方及该赛事网站；采集大赛通知栏目和详情附件，排除宣传、筹备报道和会议。"
+        }
+      ],
+      "pending_reason": "",
+      "official_url": "https://12umic.hit.edu.cn/"
+    },
+    {
+      "id": "advanced-drawing",
+      "name": "“高教杯”全国大学生先进成图技术与产品信息建模创新大赛",
+      "screenshot_name": "“高教杯”全国大学生先进成图技术与产品信息建模创新大赛",
+      "current_name": null,
+      "aliases": [],
+      "group": "国家级",
+      "awards": [],
+      "scores": [],
+      "restriction": "",
+      "sources": [
+        {
+          "name": "全国大学生先进成图技术与产品信息建模创新大赛组委会",
+          "url": "http://www.chengtudasai.com/",
+          "list_url": "http://www.chengtudasai.com/index/ctongzhi/lst.html",
+          "evidence": "http://www.chengtudasai.com/index/news/show/id/336.html",
+          "keywords": [
+            "成图大赛",
+            "开放赛道"
+          ],
+          "exclude": [
+            "教师",
+            "青年科学家",
+            "学术论坛"
+          ],
+          "path_prefix": "/index/ctongzhi/",
+          "max_pages": 24,
+          "parser_note": "主办方通知栏目包含教师赛事，须排除；列表仅提供两位年份时不推定日期，读取详情明确发布时间，并保存官网PDF附件。"
+        }
+      ],
+      "pending_reason": "",
+      "official_url": "http://www.chengtudasai.com/"
+    },
+    {
+      "id": "engineering-egs",
+      "name": "学院EGS工程制图大赛",
+      "screenshot_name": "学院EGS工程制图大赛",
+      "current_name": null,
+      "aliases": [],
+      "group": "其他赛事",
+      "awards": [],
+      "scores": [],
+      "restriction": "",
+      "sources": [],
+      "pending_reason": "截图写学院EGS工程制图大赛；具体英文缩写、主办部门和正式公开公告入口待学院确认，不能替换为全国先进成图赛。",
+      "verification": {
+        "conclusion": "截图写学院EGS工程制图大赛；具体英文缩写、主办部门和正式公开公告入口待学院确认，不能替换为全国先进成图赛。",
+        "evidence": []
+      }
+    },
+    {
+      "id": "agricultural-building",
+      "name": "全国大学生农业建筑环境与能源工程相关专业创新设计竞赛",
+      "screenshot_name": "全国大学生农业建筑环境与能源工程相关专业创新设计竞赛",
+      "current_name": "全国大学生乡村振兴创新创业大赛暨农业建筑环境与能源工程相关专业双创大赛",
+      "aliases": [
+        "农业建筑环境与能源工程相关专业创新创业竞赛",
+        "农业建筑环境与能源工程相关专业双创大赛"
+      ],
+      "group": "国家级",
+      "awards": [],
+      "scores": [],
+      "restriction": "",
+      "sources": [
+        {
+          "name": "中国农业工程学会农业建筑环境与能源工程相关专业赛事栏目",
+          "url": "https://csaen.caas.cn/",
+          "list_url": "https://csaen.caas.cn/zt/scds/nyjz/index.htm",
+          "evidence": "https://csaen.caas.cn/zt/scds/nyjz/5a12a06648334712a6ceefad84f46060.htm",
+          "keywords": [
+            "农业建筑环境",
+            "乡村振兴"
+          ],
+          "exclude": [],
+          "path_prefix": "/zt/scds/nyjz/",
+          "verified_empty_listing": true,
+          "parser_note": "官网旧入口仅返回跳转脚本；已按其指向使用真实专题栏目。学会同一赛事栏目保留历届创新设计及现用乡村振兴/双创名称，宣传报道不入库。"
+        }
+      ],
+      "pending_reason": "",
+      "official_url": "https://csaen.caas.cn/"
+    },
+    {
+      "id": "zhou-peiyuan",
+      "name": "全国周培源大学生力学竞赛",
+      "screenshot_name": "全国周培源大学生力学竞赛",
+      "current_name": null,
+      "aliases": [],
+      "group": "国家级",
+      "awards": [],
+      "scores": [],
+      "restriction": "",
+      "sources": [
+        {
+          "name": "中国力学学会全国周培源大学生力学竞赛",
+          "url": "http://zpy.cstam.org.cn/",
+          "list_url": "http://zpy.cstam.org.cn/articles.aspx?PartNodeId=15",
+          "evidence": "http://zpy.cstam.org.cn/NewsDetail.aspx?PartNodeId=15&ArticleID=473",
+          "keywords": [
+            "周培源",
+            "团体赛"
+          ],
+          "exclude": [
+            "进校园",
+            "科普",
+            "青少年",
+            "获奖者简介"
+          ],
+          "path_prefix": "/articles.aspx",
+          "max_pages": 24,
+          "parser_note": "官网竞赛动态含正式报名、规则和获奖公告；独立旧“竞赛通知”栏目停留在2020年，因此采集当前动态栏目。不采集获奖人物介绍及科普新闻。"
+        }
+      ],
+      "pending_reason": "",
+      "official_url": "http://zpy.cstam.org.cn/"
+    },
+    {
+      "id": "cq-mechanics",
+      "name": "重庆市力学竞赛",
+      "screenshot_name": "重庆市力学竞赛",
+      "current_name": null,
+      "aliases": [],
+      "group": "其他赛事",
+      "awards": [],
+      "scores": [],
+      "restriction": "",
+      "sources": [],
+      "pending_reason": "需核验重庆市力学竞赛的当届主办方公告入口，不能用全国周培源竞赛的重庆赛区代替独立赛事。",
+      "verification": {
+        "conclusion": "需核验重庆市力学竞赛的当届主办方公告入口，不能用全国周培源竞赛的重庆赛区代替独立赛事。",
+        "evidence": []
+      }
+    },
+    {
+      "id": "engineering-practice",
+      "name": "全国大学生工程实践与创新能力大赛",
+      "screenshot_name": "全国大学生工程实践与创新能力大赛",
+      "current_name": "中国大学生工程实践与创新能力大赛",
+      "aliases": [
+        "全国大学生工程训练综合能力竞赛",
+        "中国大学生工程实践与创新能力大赛"
+      ],
+      "group": "国家级",
+      "awards": [],
+      "scores": [],
+      "restriction": "",
+      "sources": [
+        {
+          "name": "中国大学生工程实践与创新能力大赛官网",
+          "url": "http://www.gcxl.edu.cn/",
+          "list_url": "http://www.gcxl.edu.cn/",
+          "evidence": "https://www.gcxl.edu.cn/jsjj.htm",
+          "keywords": [
+            "工程实践",
+            "工程训练",
+            "大赛",
+            "竞赛"
+          ],
+          "exclude": [
+            "成功举办",
+            "隆重举行",
+            "新闻",
+            "进校园"
+          ],
+          "parser_note": "赛事官方简介确认现用中国大学生工程实践与创新能力大赛，保留原名称及工程训练前身别名。",
+          "transport_note": "本机HTTPS证书与官网主机名不匹配，公开HTTP入口返回502；保持证书校验，不以关闭TLS校验解决。"
+        }
+      ],
+      "pending_reason": "",
+      "official_url": "http://www.gcxl.edu.cn/"
+    },
+    {
+      "id": "structure-design",
+      "name": "全国大学生结构设计大赛",
+      "screenshot_name": "全国大学生结构设计大赛",
+      "current_name": "全国大学生结构设计竞赛",
+      "aliases": [
+        "全国大学生结构设计大赛"
+      ],
+      "group": "国家级",
+      "awards": [],
+      "scores": [],
+      "restriction": "",
+      "sources": [
+        {
+          "name": "全国大学生结构设计竞赛官网",
+          "url": "http://www.structurecontest.com/",
+          "list_url": "http://www.structurecontest.com/",
+          "evidence": "http://www.structurecontest.com/",
+          "keywords": [
+            "结构设计",
+            "竞赛",
+            "大赛"
+          ],
+          "exclude": [
+            "宣传",
+            "成功举办"
+          ],
+          "parser_missing_reason": "官网目前仅返回摩课云动态页面壳，未核验到可用的公开公告接口；HTTPS另有主机名证书错误，不能据此认定暂无公告。",
+          "parser_note": "保留结构设计竞赛独立身份，不将其他设计大赛或参赛学校选拔通知替代组委会公告。"
+        }
+      ],
+      "pending_reason": "",
+      "official_url": "http://www.structurecontest.com/"
     }
   ]
 }

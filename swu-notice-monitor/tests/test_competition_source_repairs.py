@@ -117,6 +117,28 @@ class PublicPayloadTests(unittest.TestCase):
         self.assertEqual({'page':2,'rows':20},json.loads(requests[0].data))
         self.assertEqual('GET',requests[1].get_method())
 
+    def test_public_form_post_pagination_and_get_details(self):
+        config={'url':'https://example.org/','list_url':'https://example.org/api/list?page=1',
+            'request_form':{'page':1,'limit':15},'json_pagination':{'parameter':'page'}}
+        fetcher=OfficialFetcher(config,threading.Event())
+        policy=type('Policy',(),{'can_fetch':lambda *args:True,'crawl_delay':lambda *args:0})()
+        requests=[]
+        def open_request(req,**kwargs):
+            requests.append(req)
+            headers=Message();headers['Content-Type']='application/json'
+            return urllib.response.addinfourl(io.BytesIO(b'{}'),headers,req.full_url,200)
+        with patch('backend.competition_collector.check_url'),patch('backend.competition_collector.read_robots',return_value=policy),patch.object(fetcher.opener,'open',side_effect=open_request):
+            fetcher('https://example.org/api/list?page=2')
+            fetcher('https://example.org/api/detail/607')
+        self.assertEqual('page=2&limit=15',requests[0].data.decode())
+        self.assertEqual('application/x-www-form-urlencoded',requests[0].get_header('Content-type'))
+        self.assertEqual('GET',requests[1].get_method())
+
+    def test_english_invitation_and_exam_rules(self):
+        self.assertEqual('报名',classify('欢迎参加2026年全国大学生英语竞赛！'))
+        self.assertEqual('规则',classify('2026年全国大学生英语竞赛命题大纲'))
+        self.assertEqual('规则',classify('2026年全国大英赛题型及分值划分'))
+
 
 class CollectionRepairTests(unittest.TestCase):
     def setUp(self):
@@ -127,6 +149,31 @@ class CollectionRepairTests(unittest.TestCase):
 
     def tearDown(self):
         self.campus.close();self.temp.cleanup()
+
+    def test_official_excerpt_detail_without_id_retains_attachments(self):
+        source=self.store.sources('neccs')[0]
+        title='欢迎参加2026年全国大学生英语竞赛！'
+        listing={'code':0,'data':{'total':1,'list':[{'id':'607','title':title,'publish_time':date.today().isoformat(),'content':'摘要'}]}}
+        detail={'code':0,'data':{'title':title,'publish_time':date.today().isoformat(),
+            'content':'<a href="/uploads/official.pdf">正式参赛通知附件</a>'}}
+        def fetch(url):
+            return json.dumps(detail if '/detail/' in url else listing),url
+        result=collect_source(self.store,source,fetch=fetch)
+        self.assertEqual('正常',result['status'])
+        notices=self.store.list_notices(college_id='engineering')['items']
+        self.assertEqual(1,len(notices))
+        self.assertEqual('https://www.chinaneccs.cn/uploads/official.pdf',notices[0]['attachments'][0]['url'])
+        self.assertIn('id=607',notices[0]['url'])
+        self.assertEqual(0,self.store.list_messages()['total'])
+
+    def test_detail_without_id_rejects_mismatched_title(self):
+        source=self.store.sources('neccs')[0]
+        listing={'code':0,'data':{'total':1,'list':[{'id':'607','title':'欢迎参加2026年全国大学生英语竞赛！','publish_time':date.today().isoformat(),'content':'摘要'}]}}
+        detail={'code':0,'data':{'title':'其他赛事报名通知','content':'<a href="/wrong.pdf">附件</a>'}}
+        result=collect_source(self.store,source,fetch=lambda url:(json.dumps(detail if '/detail/' in url else listing),url))
+        self.assertEqual('失败',result['status'])
+        self.assertIn('标题与请求公告不符',self.store.sources('neccs')[0]['error'])
+        self.assertEqual([],self.store.list_notices(college_id='engineering')['items'][0]['attachments'])
 
     def test_verified_empty_column_sets_baseline_but_js_shell_does_not(self):
         source={**self.source,'config':{**self.source['config'],'keywords':['数学建模'],

@@ -33,7 +33,7 @@ class CollegeTests(unittest.TestCase):
     def test_exact_coverage_shared_identity_and_categories(self):
         cis=self.store.list_catalog()['items'];law=self.store.list_catalog(college_id='law')['items']
         self.assertEqual(44,len(cis));self.assertEqual(17,len(law))
-        self.assertEqual(59,self.store.list_catalog(scope='all')['total'])
+        self.assertEqual(73,self.store.list_catalog(scope='all')['total'])
         self.assertEqual({'innovation','challenge'},{x['id'] for x in cis}&{x['id'] for x in law})
         self.assertEqual(12,self.store.list_catalog(college_id='law',category='专业技能')['total'])
         self.assertEqual(3,self.store.list_catalog(college_id='law',category='学术科技')['total'])
@@ -123,7 +123,7 @@ class CollegeTests(unittest.TestCase):
         self.store=CompetitionStore(self.campus)
         after=self.snapshot(exclude=('competition_colleges','competition_college_rules'))
         self.assertEqual(before,after)
-        self.assertEqual(61,self.campus.db.execute('SELECT COUNT(*) FROM competition_college_rules').fetchone()[0])
+        self.assertEqual(82,self.campus.db.execute('SELECT COUNT(*) FROM competition_college_rules').fetchone()[0])
 
     def test_scoring_updates_do_not_reset_baseline_checkpoint_or_personal_state(self):
         self.store.save_subscriptions(['challenge']);self.store.checkpoint(self.source['id'],{'visited':['keep']},'正常',complete=True)
@@ -182,9 +182,9 @@ class CollegeApiTests(unittest.TestCase):
             def read(path):
                 with opener.open(base+path) as response:return json.load(response)
             try:
-                self.assertEqual(2,len(read('colleges')['items']))
+                self.assertEqual(3,len(read('colleges')['items']))
                 self.assertEqual(44,read('catalog')['total']);self.assertEqual(17,read('catalog?college=law')['total'])
-                self.assertEqual(59,read('catalog?college=law&scope=all')['total'])
+                self.assertEqual(73,read('catalog?college=law&scope=all')['total'])
                 self.assertEqual(25,read('catalog/challenge?college=law')['scores'][0])
                 self.assertEqual([],read('catalog/cumcm?college=law')['reference_rules'])
                 for path in ('catalog?college=bad','catalog?scope=bad','notices?college=bad','messages?college=bad','catalog?college=cis&category='+urllib.parse.quote('专业技能')):

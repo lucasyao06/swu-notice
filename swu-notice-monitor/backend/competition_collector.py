@@ -30,9 +30,9 @@ def classify(title):
     for kind, pattern in [('变更',r'变更|延期|延迟|调整|更名|勘误|update|change|postpone|correction'),
                           ('获奖公示',r'获奖|授奖|颁奖名单|奖项|award|winner'),
                           ('成绩',r'成绩|赛果|晋级|入围|排名|结果公示|结果公布|评审结果|results?|finalist'),
-                          ('报名',r'报名|参赛通知|举办.*通知|邀请函|注册|registration|register|invitation'),
+                          ('报名',r'报名|参赛通知|举办.*通知|邀请函|欢迎参加.*(?:竞赛|大赛)|注册|registration|register|invitation'),
                           ('赛程',r'赛程|时间安排|日程|赛场安排|比赛安排|各场比赛安排|报到|schedule|timeline'),
-                          ('规则',r'规则|规程|章程|规范|要求|指南|申诉|名额分配|参赛名额|考试大纲|技术方案.*发布|rules?|instructions?|guidelines?'),
+                          ('规则',r'规则|规程|章程|规范|要求|指南|申诉|名额分配|参赛名额|考试大纲|命题大纲|竞赛简章|题型|分值划分|技术方案.*发布|rules?|instructions?|guidelines?'),
                           ('赛题',r'赛题|题目发布|命题|题目公布|problems?|problem sets?')]:
         if re.search(pattern,title,re.I):
             return kind
@@ -143,7 +143,7 @@ def json_items(payload, base, config=None):
                 if not url and config.get('json_attachment_original') and attachments:url=attachments[0]['url']
                 if config.get('json_title_from_attachment') and len(title.strip())<8 and attachments:
                     title=re.sub(r'\.(pdf|docx?|xlsx?|zip)$','',attachments[0]['title'],flags=re.I)
-                if url:out.append({'title':title.strip(),'url':url,'published_at':public_date(published),'kind':classify(title),'attachments':attachments,'detail_complete':bool(body) or bool(attachments),'external_id':identity})
+                if url:out.append({'title':title.strip(),'url':url,'published_at':public_date(published),'kind':classify(title),'attachments':attachments,'detail_complete':(bool(body) or bool(attachments)) and not config.get('json_list_content_is_excerpt'),'external_id':identity})
             for child in value.values():
                 if isinstance(child,(dict,list)): walk(child)
     walk(json_path(payload,config['json_items_path']) if config.get('json_items_path') else payload)
@@ -323,14 +323,16 @@ class OfficialFetcher:
                     headers['Referer']=self.config['referer']
                 data=None
                 entry=urllib.parse.urlsplit(self.config.get('list_url') or self.config['url'])
-                if self.config.get('request_json') and (parsed.hostname,parsed.path)==(entry.hostname,entry.path):
+                if (self.config.get('request_json') or self.config.get('request_form')) and (parsed.hostname,parsed.path)==(entry.hostname,entry.path):
                     # Only an explicitly verified, read-only public list API
                     # receives a POST; original article links remain GETs.
-                    body=dict(self.config['request_json'])
+                    form=bool(self.config.get('request_form'))
+                    body=dict(self.config['request_form'] if form else self.config['request_json'])
                     pagination=self.config.get('json_pagination',{})
                     if isinstance(pagination,dict) and pagination.get('parameter'):
                         parameter=pagination['parameter'];body[parameter]=int(dict(urllib.parse.parse_qsl(parsed.query)).get(parameter,body.get(parameter,1)))
-                    data=json.dumps(body).encode('utf-8');headers['Content-Type']='application/json'
+                    data=(urllib.parse.urlencode(body) if form else json.dumps(body)).encode('utf-8')
+                    headers['Content-Type']='application/x-www-form-urlencoded' if form else 'application/json'
                 request = urllib.request.Request(url,headers=headers,data=data)
                 with self.opener.open(request,timeout=15) as response:
                     # Redirect destination has its own robots policy.
@@ -383,6 +385,15 @@ def collect_source(store, source, fetch=None, budget=None):
                 item = dict(page['item'])
                 attachments = []
                 if content.lstrip().startswith(('{','[')) and config.get('json_detail_url_template'):
+                    if config.get('json_detail_identity_from_request'):
+                        payload=json.loads(content)
+                        record=json_path(payload,config.get('json_detail_path','data'))
+                        title_fields=config.get('json_fields',{}).get('title',['title'])
+                        detail_title=next((record.get(k) for k in title_fields if isinstance(record,dict) and isinstance(record.get(k),str)),'')
+                        if detail_title.strip()!=item['title'].strip():raise ValueError('官网详情标题与请求公告不符')
+                        identity_field=config.get('json_id_field','id')
+                        if identity_field not in record:record[identity_field]=item['external_id']
+                        content=json.dumps(payload,ensure_ascii=False)
                     detail_config={**config,'json_items_path':config.get('json_detail_path','data'),'json_pagination':None,'keywords':[],'exclude':[]}
                     detail_rows,_=parse_listing(content,effective,detail_config)
                     detail=next((r for r in detail_rows if r['url']==item['url']),None)

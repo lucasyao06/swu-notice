@@ -28,7 +28,7 @@ test('demo follow, read and favorite changes stay isolated',async()=>{
 
 test('college rules keep shared identities, decimals and conflicts without cross-college score fallback',async()=>{
  const repo=createCompetitionDemoRepository();
- assert.equal((await repo.colleges()).items.length,2);
+ assert.equal((await repo.colleges()).items.length,3);
  const law=await repo.catalog(null,{college:'law'});
  assert.equal(law.total,17);
  assert.equal(law.items.find(x=>x.id==='challenge').scores[0],25);
@@ -39,14 +39,14 @@ test('college rules keep shared identities, decimals and conflicts without cross
  assert.equal(competitionMatchesQuery(law.items.find(x=>x.id==='innovation'),'互联网＋'),true);
  assert.match(rule.conflicts[0],/25分.*20分/);
  const all=await repo.catalog(null,{college:'law',scope:'all'});
- assert.equal(all.total,59);assert.deepEqual(all.items.find(x=>x.id==='cumcm').scores,[]);
+ assert.equal(all.total,73);assert.deepEqual(all.items.find(x=>x.id==='cumcm').scores,[]);
  assert.equal((await repo.catalog(null,{college:'law',category:'专业技能'})).total,12);
 });
 
 test('demo personal records remain global and carry the selected college context',async()=>{
  const repo=createCompetitionDemoRepository();
  await repo.update(1,{read:true,favorite:true},'law');
- assert.equal((await repo.notices({college:'law'})).total,1);
+ assert.equal((await repo.notices({college:'law'})).total,2);
  const favorites=await repo.notices({college:'law',tab:'favorite'});
  assert.equal(favorites.total,1);assert.deepEqual(favorites.items[0].reference_rules,[]);
  assert.match(favorites.items[0].recognition_note,/未列名/);
@@ -54,4 +54,26 @@ test('demo personal records remain global and carry the selected college context
  assert.equal((await repo.messages(0,null,'law')).unread,(await repo.messages()).unread);
  assert.equal((await repo.notice(1)).read,true);
  assert.equal((await repo.subscriptions()).competitions.length,2);
+});
+
+test('engineering demo preserves score context, periods, pending rules and shared notices',async()=>{
+ const repo=createCompetitionDemoRepository();
+ const data=await repo.catalog(null,{college:'engineering'});
+ assert.equal(data.total,21);
+ assert.equal((await repo.catalog(null,{college:'engineering',category:'学科竞赛'})).total,19);
+ assert.equal((await repo.catalog(null,{college:'engineering',category:'创新创业'})).total,2);
+ assert.deepEqual(data.items.find(x=>x.id==='mcm-icm').scores,[30,25,15,10,2]);
+ assert.deepEqual(data.items.find(x=>x.id==='neccs').reference_rules[0].levels[2].scores,[1,.75,.5]);
+ assert.equal(data.items.find(x=>x.id==='innovation').reference_rules[0].applicable_period.end,'2026-08-31');
+ assert.equal(data.items.some(x=>x.id==='challenge'||x.id==='challenge-business'),false);
+ assert.match(data.college.unassociated_rules[0].conflicts[0],/暂不关联/);
+ assert.match(data.items.find(x=>x.id==='caairobot').reference_rules[0].conflicts[0],/待学院确认/);
+ assert.equal((await repo.notices({college:'engineering'})).total,3);
+ assert.equal((await repo.notice(6,'engineering')).reference_rules[0].levels[0].scores[0],5);
+ assert.equal((await repo.notice(6,'law')).reference_rules[0].levels[0].scores[0],25);
+ await repo.update(6,{favorite:true,read:true},'engineering');
+ assert.equal((await repo.notice(6,'law')).favorite,true);
+ assert.equal((await repo.notice(6,'cis')).read,true);
+ assert.equal((await repo.notices({college:'cis',tab:'favorite'})).total,1);
+ assert.equal((await repo.notice(6,'cis')).reference_rules.length,0);
 });
