@@ -11,7 +11,7 @@ def report(catalog, crawl, college_catalogs=None):
     lines=['# 赛事官方来源核验清单','',
         f"本机检查完成时间：{crawl.get('last_finished') or '尚未完成'}。目录共 {len(catalog['items'])} 项。",
         '当前状态：'+ '；'.join(f'{k} {v} 项' for k,v in counts.items())+'。','',
-        '这是本机实际访问结果的快照，页面会显示后续检查状态。正常表示识别到可用的官方参赛公告；待核验、解析受限和失败均保留条目及原因。',
+        '这是本机实际访问结果的快照，页面会显示后续检查状态。正常表示官方栏目可解析；0条可能是可达对应公告均超出365天窗口，不表示官网从未发布公告。待核验、解析受限和失败均保留条目及原因。',
         '首次回填仅保存可达栏目中最近365天的公告；无可靠发布日期的公告另行标注待核验。首次回填不生成消息。',
         'HTML详情保留附件；JSON正文保留附件；PDF公告直接保存官网附件链接，不从文件名猜测发布日期。英文原文保留原语言。','',
         '学院规则独立保存；全平台赛事不重复采集，关注、收藏、已读和消息不随学院切换删除。','']
@@ -29,12 +29,20 @@ def report(catalog, crawl, college_catalogs=None):
             notes='；'.join(filter(None,[item.get('error'),item.get('restriction'),*rule.get('conflicts',[])]))
             lines.append('| '+' | '.join(map(cell,[rule['screenshot_name'],rule['category']+' / '+rule['default_level'],scores,link,item['status']+' / '+str(item['notice_count']),item['last_checked'] or '尚未检查',notes]))+' |')
         lines+=['','### 分级参考标准与附注','']
+        for rule in college.get('unassociated_rules',[]):
+            lines+=['#### 未关联：'+rule['screenshot_name']+' · '+rule['status'],'']
+            if rule.get('applicable_period'):lines.append('- '+rule['applicable_period']['label'])
+            for level in rule['levels']:
+                lines.append('- '+level['name']+'：'+'；'.join(a+'：'+('未列明' if b is None else str(b)) for a,b in zip(level['awards'],level['scores'])))
+            lines += [*[f'- {x}' for x in [*rule.get('conflicts',[]),*rule['notes']]],'']
         seen=set()
         for item in data['items']:
             rule=item['reference_rules'][0]
-            key=json.dumps([rule['category'],rule['levels']],ensure_ascii=False)
+            key=json.dumps([rule['category'],rule['levels'],rule['notes'],rule.get('conflicts'),rule.get('applicable_period')],ensure_ascii=False)
             if key in seen:continue
             seen.add(key);lines+=['#### '+rule['category']+' · 示例：'+rule['screenshot_name'],'']
+            if rule.get('applicable_period'):lines.append('- '+rule['applicable_period']['label'])
+            lines += [f'- 待确认：{x}' for x in rule.get('conflicts',[])]
             for level in rule['levels']:
                 values='；'.join(a+'：'+('未列明' if b is None else str(b)) for a,b in zip(level['awards'],level['scores']))
                 lines.append('- '+level['name']+'：'+values)
@@ -62,7 +70,7 @@ def report(catalog, crawl, college_catalogs=None):
         '修改 `data/competitions.json` 中已核验来源配置后重启后端；配置变化会重建该来源基线，保留原通知的阅读与收藏状态。',
         '公开接口字段映射、分页参数和原文URL模板必须来自官网实际请求。来源不明确时保留待核验，不使用推广网站或同名其他比赛代替。',
         '运行 `python scripts/competition_report.py` 可从本地API重新生成本清单。']
-    return '\n'.join(lines)+'\n'
+    return '\n'.join(line.rstrip() for line in lines)+'\n'
 
 
 if __name__=='__main__':
