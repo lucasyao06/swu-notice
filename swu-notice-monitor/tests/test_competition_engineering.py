@@ -86,7 +86,7 @@ class EngineeringTests(unittest.TestCase):
         self.assertEqual(25, self.store.get_notice(notice['id'], 'law')['reference_rules'][0]['levels'][0]['scores'][0])
         self.assertTrue(self.store.get_notice(notice['id'], 'law')['favorite'])
         self.assertTrue(self.store.get_notice(notice['id'], 'cis')['read'])
-        self.assertEqual([], self.store.get_notice(notice['id'], 'cis')['reference_rules'])
+        self.assertEqual([None]*5, self.store.get_notice(notice['id'], 'cis')['reference_rules'][0]['levels'][0]['scores'])
         self.assertEqual(30, self.store.reference('innovation', 'cis')['reference_rules'][0]['levels'][0]['scores'][1])
         self.assertEqual(25, self.store.reference('innovation', 'law')['reference_rules'][0]['levels'][0]['scores'][0])
         self.assertEqual(35, self.rule('innovation')['levels'][0]['scores'][0])

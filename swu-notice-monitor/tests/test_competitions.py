@@ -40,7 +40,7 @@ class CompetitionTests(unittest.TestCase):
             (['lanqiao'],[12,12,10,6,3]),
             ('vr math ai-future digital-skills ncccu digital-media information-literacy'.split(),[12,12,8,6,0]),
             ('cq-electronics cq-programming cq-database cq-security'.split(),[9,9,7,5,2]),
-            (['bayu'],[5,5,4,3,0]),(['certification','swu-modeling'],[3,3,2,1,0])]
+            (['bayu'],[5,5,4,3,0]),(['certification','swu-modeling'],[3,3,2,1,0]),(['hanhong-academic'],[None]*5)]
         self.assertEqual(set(rows),{id for ids,_ in expected for id in ids})
         for ids,scores in expected:
             for id in ids:self.assertEqual(scores,rows[id]['scores'],id)

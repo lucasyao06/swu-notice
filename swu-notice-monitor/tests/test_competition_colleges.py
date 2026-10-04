@@ -32,17 +32,56 @@ class CollegeTests(unittest.TestCase):
 
     def test_exact_coverage_shared_identity_and_categories(self):
         cis=self.store.list_catalog()['items'];law=self.store.list_catalog(college_id='law')['items']
-        self.assertEqual(44,len(cis));self.assertEqual(17,len(law))
+        self.assertEqual(45,len(cis));self.assertEqual(17,len(law))
         self.assertEqual(73,self.store.list_catalog(scope='all')['total'])
-        self.assertEqual({'innovation','challenge'},{x['id'] for x in cis}&{x['id'] for x in law})
+        self.assertEqual({'innovation','challenge','hanhong-academic'},{x['id'] for x in cis}&{x['id'] for x in law})
         self.assertEqual(12,self.store.list_catalog(college_id='law',category='专业技能')['total'])
         self.assertEqual(3,self.store.list_catalog(college_id='law',category='学术科技')['total'])
         self.assertEqual(2,self.store.list_catalog(college_id='law',category='创新创业')['total'])
-        self.assertEqual(15,len({x['id'] for x in law}-{x['id'] for x in cis}))
+        self.assertEqual(14,len({x['id'] for x in law}-{x['id'] for x in cis}))
         self.assertEqual('innovation',self.store.list_catalog(college_id='law',q='互联网＋')['items'][0]['id'])
         self.assertEqual('innovation',self.store.list_catalog(college_id='law',q='中国国际“互联网＋”大学生创新创业大赛')['items'][0]['id'])
         for college in self.store.colleges()['items']:
             self.assertIn('适用学年尚未确认',college['policy']['label'])
+
+    def test_cis_selection_rules_preserve_null_zero_and_specific_restrictions(self):
+        rules=lambda id:self.store.reference(id)['reference_rules'][0]
+        self.assertEqual([[30,25,20,15,4],[15,12.5,10,7.5,2],[7.5,6.25,5,3.75,0]],
+                         [x['scores'] for x in rules('challenge')['levels']])
+        self.assertEqual([None,15,12.5,10,2],rules('innovation')['levels'][1]['scores'])
+        self.assertEqual([None,7.5,6.25,5,0],rules('innovation')['levels'][2]['scores'])
+        for id in ['computer-design','c4-bigdata','c4-ladder','c4-app','c4-network','c4-ai','c4-miniprogram']:
+            self.assertEqual([7,6,5,3,None],rules(id)['levels'][1]['scores'])
+            self.assertEqual([None,None,None,None,0],rules(id)['levels'][2]['scores'])
+        for id in ['icpc','ccpc']:
+            self.assertEqual([25,25,20,12,4],rules(id)['levels'][1]['scores'])
+            self.assertEqual([12.5,12.5,10,6,2],rules(id)['levels'][2]['scores'])
+        for id in ['mcm-icm','digital-skills','ncccu','information-literacy']:
+            self.assertEqual(1,len(rules(id)['levels']))
+        self.assertEqual(['O','F','M','H','S'],rules('mcm-icm')['levels'][0]['awards'])
+        self.assertEqual([25,20,10,4,0],rules('mcm-icm')['levels'][0]['scores'])
+
+    def test_cis_complete_policy_and_hanhong_share_existing_records(self):
+        policy=self.store.college('cis')['policy']
+        self.assertEqual(6,len(policy['notes']))
+        text=' '.join(policy['notes'])
+        for term in ['40分','不累计','50%','邀请赛','3人及以下','4人及以上','第4—5名','第6名','所有指导老师签字']:
+            self.assertIn(term,text)
+        self.assertNotIn('底部说明不完整',text)
+        self.assertEqual([None]*5,self.store.reference('hanhong-academic')['reference_rules'][0]['levels'][0]['scores'])
+        self.assertEqual(25,self.store.reference('hanhong-academic','law')['reference_rules'][0]['levels'][0]['scores'][0])
+        self.assertEqual(5,self.store.reference('hanhong-academic','engineering')['reference_rules'][0]['levels'][0]['scores'][0])
+        source=self.store.sources('hanhong-academic')[0]
+        self.store.save_subscriptions(['hanhong-academic'])
+        self.store.checkpoint(source['id'],{'visited':['keep']},'正常',complete=True)
+        n,_=self.store.upsert_notice(source,{**self.item,'title':'含弘杯报名通知'})
+        self.store.update_notice(n['id'],{'favorite':True,'read':True})
+        for col in ['cis','law','engineering']:
+            notices=self.store.list_notices(college_id=col)['items']
+            self.assertEqual([n['id']],[x['id'] for x in notices])
+            self.assertTrue(notices[0]['favorite']);self.assertTrue(notices[0]['read'])
+        self.assertEqual(1,self.store.list_messages()['total'])
+        self.assertTrue(self.store.sources('hanhong-academic')[0]['baseline'])
 
     def test_law_professional_six_levels_and_fractional_scores(self):
         rule=self.store.reference('yingming-zhili-moot','law')['reference_rules'][0]
@@ -123,7 +162,7 @@ class CollegeTests(unittest.TestCase):
         self.store=CompetitionStore(self.campus)
         after=self.snapshot(exclude=('competition_colleges','competition_college_rules'))
         self.assertEqual(before,after)
-        self.assertEqual(82,self.campus.db.execute('SELECT COUNT(*) FROM competition_college_rules').fetchone()[0])
+        self.assertEqual(83,self.campus.db.execute('SELECT COUNT(*) FROM competition_college_rules').fetchone()[0])
 
     def test_scoring_updates_do_not_reset_baseline_checkpoint_or_personal_state(self):
         self.store.save_subscriptions(['challenge']);self.store.checkpoint(self.source['id'],{'visited':['keep']},'正常',complete=True)
@@ -135,6 +174,24 @@ class CollegeTests(unittest.TestCase):
         self.store=CompetitionStore(self.campus,rules_path=path)
         self.assertEqual(before,self.snapshot(exclude=('competition_college_rules',)))
         self.assertEqual(24,self.store.reference('challenge','law')['reference_rules'][0]['levels'][0]['scores'][0])
+
+    def test_cis_hanhong_association_migration_preserves_campus_sources_and_user_records(self):
+        config=json.loads((ROOT/'data/college_competition_rules.json').read_text(encoding='utf-8'))
+        config['rules']=[r for r in config['rules'] if not (r['college_id']=='cis' and r['competition_id']=='hanhong-academic')]
+        self.campus.db.execute("DELETE FROM competition_college_rules WHERE college_id='cis' AND competition_id='hanhong-academic'")
+        self.campus.db.commit()
+        path=Path(self.temp.name)/'before-cis.json';path.write_text(json.dumps(config),encoding='utf-8')
+        self.store=CompetitionStore(self.campus,rules_path=path)
+        source=self.store.sources('hanhong-academic')[0]
+        self.store.save_subscriptions(['hanhong-academic'])
+        self.store.checkpoint(source['id'],{'visited':['preserve-hanhong']},'正常',complete=True)
+        notice,_=self.store.upsert_notice(source,{**self.item,'title':'含弘杯参赛通知'})
+        self.store.update_notice(notice['id'],{'read':True,'favorite':True})
+        before=self.snapshot(exclude=('competition_college_rules',))
+        self.store=CompetitionStore(self.campus)
+        self.assertEqual(before,self.snapshot(exclude=('competition_college_rules',)))
+        self.assertEqual(45,self.store.list_catalog()['total'])
+        self.assertEqual([None]*5,self.store.get_notice(notice['id'])['reference_rules'][0]['levels'][0]['scores'])
 
     def test_manual_college_collection_scope_and_persisted_resume(self):
         expected={x['competition_id'] for x in self.store.sources(college_id='law')}
@@ -183,7 +240,7 @@ class CollegeApiTests(unittest.TestCase):
                 with opener.open(base+path) as response:return json.load(response)
             try:
                 self.assertEqual(3,len(read('colleges')['items']))
-                self.assertEqual(44,read('catalog')['total']);self.assertEqual(17,read('catalog?college=law')['total'])
+                self.assertEqual(45,read('catalog')['total']);self.assertEqual(17,read('catalog?college=law')['total'])
                 self.assertEqual(73,read('catalog?college=law&scope=all')['total'])
                 self.assertEqual(25,read('catalog/challenge?college=law')['scores'][0])
                 self.assertEqual([],read('catalog/cumcm?college=law')['reference_rules'])
