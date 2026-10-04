@@ -35,7 +35,7 @@ async function wait(url){for(let i=0;i<100;i++){try{if((await fetch(url)).ok)ret
   const college=page.getByRole('combobox',{name:'选择学院',exact:true});
   await college.selectOption('law');await idle();
   assert.equal(await page.locator('.competition-notice-list article').count(),1); // favorite cumcm survives outside law
-  assert.match(await page.locator('.competition-notice-list').innerText(),/当前学院截图未列名/);
+  assert.match(await page.locator('.competition-notice-list').innerText(),/当前学院的赛事认定待确认/);
   await page.locator('.competition-notice-title').click();await page.locator('.competition-dialog[open]').waitFor();
   assert.equal(await page.locator('.competition-dialog table').count(),0);await page.keyboard.press('Escape');
   await page.getByRole('button',{name:'全部',exact:true}).click();await idle();assert.equal(await page.locator('.competition-notice-list article').count(),2);
@@ -46,7 +46,7 @@ async function wait(url){for(let i=0;i<100;i++){try{if((await fetch(url)).ok)ret
   await page.getByRole('combobox',{name:'规则类别',exact:true}).selectOption('专业技能');await idle();assert.equal(await page.locator('.competition-card').count(),12);
   const fractional=page.locator('.competition-card').filter({hasText:'至立'});assert.deepEqual(await fractional.locator('td').allTextContents(),['2.5','2','1.5']);
   await page.getByRole('textbox',{name:'搜索赛事',exact:true}).fill('天欣杯');await idle();await page.getByRole('button',{name:'关注赛事',exact:true}).click();await idle();
-  await page.getByRole('button',{name:'我的关注',exact:true}).click();await idle();assert.equal(await page.locator('.competition-card').count(),3);assert.equal(await page.locator('.competition-card').filter({hasText:'当前学院截图未列名'}).count(),2);
+  await page.getByRole('button',{name:'我的关注',exact:true}).click();await idle();assert.equal(await page.locator('.competition-card').count(),3);assert.equal(await page.locator('.competition-card').filter({hasText:'当前学院的赛事认定待确认'}).count(),2);
   await page.getByRole('button',{name:'赛事目录',exact:true}).click();await idle();await page.getByRole('combobox',{name:'赛事范围',exact:true}).selectOption('all');await idle();assert.match(await page.locator('.competition-toolbar').innerText(),/73 场赛事/);
   await page.getByRole('combobox',{name:'赛事范围',exact:true}).selectOption('college');await page.reload();await page.getByRole('button',{name:'赛事',exact:true}).click();await idle();assert.equal(await college.inputValue(),'law');
   await page.route('**/api/competition/catalog?**',async route=>{if(new URL(route.request().url()).searchParams.get('college')==='cis'){const response=await route.fetch();await new Promise(r=>setTimeout(r,400));try{await route.fulfill({response})}catch{}}else await route.continue()});
@@ -66,7 +66,7 @@ async function wait(url){for(let i=0;i<100;i++){try{if((await fetch(url)).ok)ret
   await page.getByRole('combobox',{name:'规则类别',exact:true}).selectOption('创新创业');await idle();
   assert.equal(await page.locator('.competition-card').count(),2);
   const unassociated=page.locator('.competition-unassociated-rule');await unassociated.locator('summary').click();
-  assert.match(await unassociated.innerText(),/不套用到两个既有挑战杯赛事/);assert.equal(await unassociated.locator('table').count(),3);
+  assert.match(await unassociated.innerText(),/暂不套用到课外学术科技作品赛或创业计划赛/);assert.equal(await unassociated.locator('table').count(),3);
   const engineeringHanhong=page.locator('.competition-card').filter({hasText:'含弘杯'});
   assert.deepEqual(await engineeringHanhong.locator('td').allTextContents(),['5','3.5','2.5','1']);
   await engineeringHanhong.locator('.competition-title').click();await page.locator('.competition-dialog[open]').waitFor();
@@ -81,7 +81,22 @@ async function wait(url){for(let i=0;i<100;i++){try{if((await fetch(url)).ok)ret
   await college.selectOption('law');await idle();
   for(const width of [1440,390,320]){await page.setViewportSize({width,height:900});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));if(width===1440||width===390)await page.screenshot({path:path.join(root,'docs',`competition-law-${width}.png`),fullPage:true})}
   await college.selectOption('cis');await idle();await page.setViewportSize({width:1440,height:1000});
-  await page.getByRole('combobox',{name:'数据模式',exact:true}).selectOption('demo');await idle();await page.getByRole('button',{name:'官网通知',exact:true}).click();await idle();assert.equal(await page.locator('.competition-notice-list article').count(),3);
+  assert.match(await page.locator('.competition-toolbar').innerText(),/45 场赛事/);
+  await page.locator('.competition-policy-notes summary').click();
+  assert.match(await page.locator('.competition-policy-notes').innerText(),/4人及以上.*第4—5名按50%/);
+  await page.getByRole('textbox',{name:'搜索赛事',exact:true}).fill('课外学术科技');await idle();
+  await page.locator('.competition-card').filter({hasText:'挑战杯'}).locator('.competition-title').click();
+  await page.locator('.competition-dialog[open]').waitFor();
+  assert.deepEqual(await page.locator('.competition-dialog td').allTextContents(),['30','25','20','15','4','15','12.5','10','7.5','2','7.5','6.25','5','3.75','0']);
+  assert.doesNotMatch(await page.locator('.competition-dialog').innerText(),/截图底部|共享单用户|建立更新基线|来源与解析|用户确认|第\d+条|Traceback|SSL|HTTP Error/);
+  for(const width of [1440,390,320]){await page.setViewportSize({width,height:900});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));}
+  await page.keyboard.press('Escape');await page.getByRole('textbox',{name:'搜索赛事',exact:true}).fill('含弘');await idle();
+  const cisHanhong=page.locator('.competition-card');assert.deepEqual(await cisHanhong.locator('td').allTextContents(),['未列明','未列明','未列明','未列明','未列明']);
+  await cisHanhong.locator('.competition-title').click();await page.locator('.competition-dialog[open]').waitFor();
+  assert.match(await page.locator('.competition-dialog').innerText(),/具体奖项分值待学院确认/);await page.keyboard.press('Escape');
+  await page.getByRole('textbox',{name:'搜索赛事',exact:true}).fill('');await idle();
+
+  await page.getByRole('combobox',{name:'数据模式',exact:true}).selectOption('demo');await idle();await page.getByRole('button',{name:'官网通知',exact:true}).click();await idle();assert.equal(await page.locator('.competition-notice-list article').count(),4);
   await page.getByRole('button',{name:'赛事目录',exact:true}).click();await idle();
   await page.getByRole('button',{name:'设置',exact:true}).click();await page.getByRole('combobox',{name:'光线氛围'}).selectOption('morning');await page.getByRole('button',{name:'赛事',exact:true}).click();await idle();assert.equal(await page.locator('.light-morning').count(),1);await college.selectOption('law');await idle();assert.match(await page.locator('.competition-toolbar').innerText(),/17 场赛事/);
   for(const width of [1440,390,320]){
