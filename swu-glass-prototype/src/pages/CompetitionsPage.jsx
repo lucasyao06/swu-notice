@@ -45,7 +45,7 @@ export function CompetitionsPage({mode}){
  useEffect(()=>{if(section==='catalog'||section==='following')setPage(p=>Math.min(p,Math.max(0,Math.ceil(visible.length/12)-1)))},[visible.length,section]);
  useEffect(()=>{if(!loading&&(section==='notices'||section==='messages'))setPage(p=>Math.min(p,Math.max(0,Math.ceil((section==='messages'?messages.total:notices.total)/10)-1)))},[loading,section,messages.total,notices.total]);
  return <section className="competition-page" aria-label="赛事通知模块">
-  <div className="competition-heading"><div><span className="eyebrow"><Trophy size={16}/> 学院赛事通知</span><h1>发现比赛，掌握参赛动态</h1><p>官方公告与综测参考分值，集中查看。</p></div><span className="competition-mode">{mode==='demo'?'演示数据':'官方公告'}</span></div>
+  <div className="competition-heading"><div><span className="eyebrow"><Trophy size={16}/> 学院赛事通知</span><h1>各学院综测加分类赛事通知</h1><p>具体加分分值按各学院当年综测文件确定。</p></div><span className="competition-mode">{mode==='demo'?'演示数据':'官方公告'}</span></div>
   <div className="competition-college-toolbar glass"><CollegeSelect colleges={colleges} value={college} onChange={changeCollege}/></div>
   <nav className="competition-nav glass" aria-label="赛事导航">{[['catalog','赛事目录'],['notices','官网通知'],['following','我的关注'],['messages','消息中心']].map(([id,label])=><button key={id} aria-label={label} aria-current={section===id?'page':undefined} onClick={()=>nav(id)}>{label}{id==='messages'&&messages.unread>0&&<b>{messages.unread}</b>}</button>)}</nav>
   {error&&<div className="competition-error" role="alert">{error}<button onClick={()=>setRevision(v=>v+1)}>重试</button></div>}
