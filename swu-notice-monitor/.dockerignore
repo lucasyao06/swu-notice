@@ -10,3 +10,5 @@ design
 
 **/node_modules
 glass-build
+
+!data/college_competition_rules.json

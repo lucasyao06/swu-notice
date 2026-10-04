@@ -9,6 +9,7 @@ import {useNoticeData} from './hooks/useNoticeData.js';
 import {showReadingState} from './data/reading.js';
 import {CATEGORIES} from './data/adapters.js';
 import {SubscriptionsPage,SourcesPage,SettingsPage,Pager} from './pages/WorkspacePages.jsx';
+import {CompetitionsPage} from './pages/CompetitionsPage.jsx';
 
 function DateCard({onOpen,quiet}) {
  const host=useRef(null);
@@ -44,7 +45,7 @@ function Notice({item,favorites,onFavorite,onOpen,large=false,pending=false,show
  </article>
 }
 export function App(){
- const [view,setView]=useState('home'),[query,setQuery]=useState(''),[search,setSearch]=useState(''),[tab,setTab]=useState('all');
+ const [view,setView]=useState(()=>new URLSearchParams(window.location.search).get('view')==='competitions'?'competitions':'home'),[query,setQuery]=useState(''),[search,setSearch]=useState(''),[tab,setTab]=useState('all');
  const [mode,setModeState]=useState(()=>new URLSearchParams(location.search).get('mode')==='demo'?'demo':'live');
  const [page,setPage]=useState(0),[sourceFilter,setSourceFilter]=useState(''),[categoryFilter,setCategoryFilter]=useState('');
  const data=useNoticeData({mode,query:search,tab,page,source:sourceFilter,category:categoryFilter});
@@ -91,7 +92,7 @@ export function App(){
   if(quiet||before===view)return;
   const target=document.querySelector('.content-grid');
   if(!target)return;
-  const order=['home','notices','subscriptions','sources','settings'];
+  const order=['home','notices','subscriptions','sources','competitions','settings'];
   const direction=order.indexOf(view)>order.indexOf(before)?1:-1;
   const animation=target.animate([{transform:`translateX(${direction*72}px)`,opacity:0},{transform:'translateX(0)',opacity:1}],{duration:320,easing:'cubic-bezier(.22,1,.36,1)'});
   transitionAnimation.current=animation;
@@ -128,7 +129,7 @@ export function App(){
  const isWorkspace=['subscriptions','sources','settings'].includes(view);
  const toggle=(arr,set,v)=>set(arr.includes(v)?arr.filter(x=>x!==v):[...arr,v]);
  const row=(n,large=false)=><Notice key={n.id} item={n} large={large} showRead={showReadingState(n,subscriptions)} pending={data.pending} favorites={favorites} onFavorite={favorite} onOpen={openNotice}/>;
- return <div className={`app ${view==='home'?'home-view':''} ${quiet?'still':''} light-${phase}`} >
+ return <div className={`app ${view==='home'?'home-view':''} ${view==='competitions'?'competition-view':''} ${quiet?'still':''} light-${phase}`} >
  <div className="campus-scene" aria-hidden="true"/><AmbientLight phase={phase}/>
  <a className="skip" href="#content">跳转到通知</a>
  <header className="topbar"><div className="topbar-inner"><button className="brand" onClick={()=>nav('home')} aria-label="西南大学通知聚合平台首页"><img className="school-logo" src="/assets/swu-logo-horizontal.png" alt="西南大学 SOUTHWEST UNIVERSITY"/><span className="brand-rule"/><span className="product">通知聚合平台<small>SWU Notice</small></span></button>
@@ -137,7 +138,7 @@ export function App(){
  <main className="page" id="content">{view==='home'&&<section className="hero"><div className="hero-photo"/><div className="hero-copy"><div className="eyebrow">校园资讯，与你有关</div><h1>重要通知，不再错过</h1><p>汇聚校园通知，让与你相关的信息先一步抵达。</p></div><div className="hero-motto">含弘光大<br/><span>继往开来</span></div><DateCard quiet={quiet} onOpen={()=>setModal({type:'calendar'})}/></section>}
  {data.error&&<div className="connection-error" role="alert">{data.error}<button onClick={data.refresh}>重试</button></div>}
  {data.loading&&<div className="loading-status" role="status">正在加载…</div>}
- {isWorkspace?<section className="content-grid workspace-page" aria-label={view==='subscriptions'?'订阅页面':view==='sources'?'来源页面':'设置页面'}>
+ {view==='competitions'?<CompetitionsPage key={mode} mode={mode}/>:isWorkspace?<section className="content-grid workspace-page" aria-label={view==='subscriptions'?'订阅页面':view==='sources'?'来源页面':'设置页面'}>
  {view==='subscriptions'&&data.ready&&<SubscriptionsPage key={mode} sites={units} subscriptions={subscriptions} pending={data.pending} mode={mode} onSave={saveSubscriptions}/>}
  {view==='sources'&&<SourcesPage key={mode} sites={units} subscriptions={subscriptions} pending={data.pending} mode={mode} onFollow={follow}/>}
  {view==='settings'&&<SettingsPage motion={motion} setMotion={setMotion} daylight={daylight} setDaylight={setDaylight} phase={phase} reduced={reduced} mode={mode} setMode={setMode}/>}
@@ -149,7 +150,7 @@ export function App(){
  <GlassPanel className="side-panel updates" quiet={quiet}><div className="section-head"><h2>最近更新</h2><span className="muted">我的订阅</span></div><div className="timeline">{recentUpdates.map(n=><button key={n.id} onClick={()=>openNotice(n)}><i/><span title={n.title}>{n.title}</span><time>{n.dateVerified?n.date.slice(5,10):'待核验'}</time></button>)}{!recentUpdates.length&&<p className="muted">暂无订阅更新</p>}</div></GlassPanel>
  <section className="glass culture"><Quote size={34}/><blockquote>含弘光大，继往开来</blockquote><p>在西大，遇见更好的自己。</p><small>— SOUTHWEST UNIVERSITY</small></section></aside></div>}
  <footer aria-hidden="true"/></main>
- <nav className="dock" aria-label="主导航" ref={dock}><Lens host={dock} quiet={quiet}/>{[[House,'首页','home'],[Bell,'通知','notices'],[Star,'订阅','subscriptions'],[Grid2X2,'来源','sources'],[Settings,'设置','settings']].map(([Icon,name,id])=><button key={id} className={active===id?'active':''} aria-current={active===id?'page':undefined} onClick={()=>nav(id)}><Icon size={25} strokeWidth={1.65}/><span>{name}</span></button>)}</nav>
+ <nav className="dock" aria-label="主导航" ref={dock}><Lens host={dock} quiet={quiet}/>{[[House,'首页','home'],[Bell,'通知','notices'],[Star,'订阅','subscriptions'],[Grid2X2,'来源','sources'],[GraduationCap,'赛事','competitions'],[Settings,'设置','settings']].map(([Icon,name,id])=><button key={id} className={active===id?'active':''} aria-current={active===id?'page':undefined} onClick={()=>nav(id)}><Icon size={25} strokeWidth={1.65}/><span>{name}</span></button>)}</nav>
  <dialog aria-label="通知与偏好设置" ref={dialog} onCancel={e=>{e.preventDefault();closeModal()}} onClick={e=>{if(e.target===e.currentTarget)closeModal()}}><div className="dialog-content">{data.error&&<p className="error-text" role="alert">{data.error}</p>}<button className="dialog-close icon-button" aria-label="关闭弹窗" onClick={closeModal}><X size={22}/></button>{modal?.type==='notice'&&<><span className="tag">{modal.notice.isDemo?'示例通知':'原站通知'}</span><h2>{modal.notice.title}</h2><p className="dialog-meta">{modal.notice.source} · {modal.notice.date}</p><p className="dialog-summary">{modal.notice.summary}</p><div className="dialog-actions"><button disabled={data.pending} className="secondary" onClick={()=>favorite(modal.notice.id)}><Star size={17}/>{modal.notice.favorite?'取消收藏':'收藏通知'}</button><button className="primary" disabled={data.pending||!modal.notice.url} onClick={()=>readDetails(modal.notice)}>{modal.notice.url?'阅读详情':'详情暂不可用'} <ArrowRight size={17}/></button></div></>}
  {modal?.type==='calendar'&&<><span className="eyebrow">校园日历</span><h2>校园日历</h2><p className="dialog-summary">暂未开放</p><div className="dialog-actions"><button className="primary" onClick={closeModal}>知道了</button></div></>}
  {modal?.type==='inbox'&&<><span className="eyebrow">与你相关的动态</span><h2>消息提醒</h2><p className="muted">{data.unread} 条未读 · 最近 {Math.min(data.messages.length,20)} 条</p><div className="inbox-list">{data.messages.slice(0,20).map(m=><button key={m.id} disabled={data.pending} onClick={async()=>{const n=await data.getNotice(m.noticeId);if(n)openNotice(n)}}><span className="small-icon blue"><Bell size={19}/></span><span><strong>{m.title}</strong><small>{m.source} · {m.status} · {m.read?'已读':'未读'}</small></span><ChevronRight size={18}/></button>)}{!data.messages.length&&<p className="muted">暂无推送消息</p>}</div></>}

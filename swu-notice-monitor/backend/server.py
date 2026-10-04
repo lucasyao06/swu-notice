@@ -12,10 +12,16 @@ from pathlib import Path
 if __package__:
     from .collector import start_collection, validate_list_url, network_summary
     from .store import Store
+    from .competition_store import CompetitionStore
+    from .competition_api import handle as competition_api
+    from .competition_collector import scheduler_loop as competition_scheduler
 else:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
     from backend.collector import start_collection, validate_list_url, network_summary
     from backend.store import Store
+    from backend.competition_store import CompetitionStore
+    from backend.competition_api import handle as competition_api
+    from backend.competition_collector import scheduler_loop as competition_scheduler
 
 
 ALLOWED_ORIGINS = {"http://127.0.0.1:5173", "http://localhost:5173"} | {x.strip() for x in os.environ.get("SWU_ALLOWED_ORIGINS", "").split(",") if x.strip()}
@@ -90,6 +96,8 @@ class APIHandler(BaseHTTPRequestHandler):
     def _get(self):
         parsed = self._parsed(); path = parsed.path; query = urllib.parse.parse_qs(parsed.query)
         one = lambda key, default="": query.get(key, [default])[0]
+        if path.startswith('/api/competition/'):
+            return competition_api(self,'GET',path,query=query)
         if path == "/api/health":
             return self._send(200, {"ok": True, **self.server.store.health(), 'network': network_summary(), 'crawl': self.server.store.get_crawl_state()})
         if path == "/api/sites":
@@ -126,6 +134,8 @@ class APIHandler(BaseHTTPRequestHandler):
         if not origin_allowed(self.headers.get("Origin")): return self._send(403, {"error": "不允许的来源"})
         path = self._parsed().path
         body = self._body()
+        if path.startswith('/api/competition/'):
+            return competition_api(self,method,path,body=body)
         if method == 'POST' and path == '/api/crawl/stop':
             self.server.store.crawl_cancel.set()
             return self._send(200, {'ok': True, 'stopping': True})
@@ -190,6 +200,7 @@ class MonitorServer(ThreadingHTTPServer):
     daemon_threads = True
     def __init__(self, address, store):
         self.store = store
+        self.competitions = CompetitionStore(store)
         super().__init__(address, APIHandler)
 
 
@@ -214,8 +225,10 @@ def main():
     store = Store(args.db, root / "data" / "sites.json")
     server = MonitorServer((args.host,args.port),store)
     stop = threading.Event(); threading.Thread(target=scheduler_loop,args=(store,stop),daemon=True).start()
+    threading.Thread(target=competition_scheduler,args=(server.competitions,stop),daemon=True).start()
     network_summary()  # Fail fast on invalid deployment configuration.
     def terminate(*_):
+        server.competitions.stop(resume=True)
         store.prepare_restart(); stop.set()
         threading.Thread(target=server.shutdown, daemon=True).start()
     signal.signal(signal.SIGTERM, terminate)
@@ -227,9 +240,11 @@ def main():
     try: server.serve_forever()
     except KeyboardInterrupt: pass
     finally:
+        server.competitions.stop(resume=True)
         stop.set(); store.prepare_restart(); server.server_close()
+        if server.competitions.thread: server.competitions.thread.join(timeout=50)
         if store.crawl_thread: store.crawl_thread.join(timeout=50)
-        if not store.crawl_thread or not store.crawl_thread.is_alive(): store.close()
+        if (not store.crawl_thread or not store.crawl_thread.is_alive()) and (not server.competitions.thread or not server.competitions.thread.is_alive()): store.close()
 
 
 if __name__ == "__main__": main()
