@@ -10,3 +10,5 @@ createRoot(document.getElementById("root")).render(
 );
 
 import "./night-theme.css";
+
+import "./calendar.css";

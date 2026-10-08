@@ -1,3 +1,5 @@
+from .calendar_store import CalendarMixin
+from .urls import article_identity, canonical_url, is_attachment
 import json
 import sqlite3
 import threading
@@ -20,7 +22,7 @@ def _now():
     return datetime.now().astimezone().isoformat(timespec="seconds")
 
 
-class Store:
+class Store(CalendarMixin):
     def __init__(self, db_path, sites_path):
         self.db_path = Path(db_path)
         first_init = not self.db_path.exists() or self.db_path.stat().st_size == 0
@@ -33,6 +35,7 @@ class Store:
         self.db = sqlite3.connect(self.db_path, check_same_thread=False)
         self.db.row_factory = sqlite3.Row
         with self._lock:
+            self._backup_legacy_notices()
             self.db.executescript("""
                 PRAGMA foreign_keys=ON;
                 CREATE TABLE IF NOT EXISTS sites(
@@ -81,6 +84,14 @@ class Store:
             if 'date_verified' not in columns:
                 self.db.execute('ALTER TABLE notices ADD COLUMN date_verified INTEGER NOT NULL DEFAULT 0')
                 self.db.execute("ALTER TABLE notices ADD COLUMN date_source TEXT NOT NULL DEFAULT '待原文核验'")
+            if 'url_key' not in columns:
+                self.db.execute('ALTER TABLE notices ADD COLUMN url_key TEXT')
+            if 'is_attachment' not in columns:
+                self.db.execute('ALTER TABLE notices ADD COLUMN is_attachment INTEGER NOT NULL DEFAULT 0')
+                attachments = [(r['id'],) for r in self.db.execute('SELECT id,url FROM notices WHERE is_demo=0') if is_attachment(r['url'])]
+                self.db.executemany('UPDATE notices SET is_attachment=1 WHERE id=?', attachments)
+            self._merge_article_urls()
+            self.db.execute('CREATE UNIQUE INDEX IF NOT EXISTS notices_article_identity ON notices(source_id,url_key,is_demo)')
             self.db.execute("UPDATE sites SET status='未接入' WHERE status='未连接'")
             previous = self.db.execute('SELECT running,progress FROM crawl_state WHERE singleton=1').fetchone()
             marker = self.db.execute("SELECT value FROM preferences WHERE key='resume_crawl'").fetchone()
@@ -91,9 +102,60 @@ class Store:
             self.db.execute("DELETE FROM preferences WHERE key='resume_crawl'")
             self.db.execute("UPDATE crawl_state SET running=0 WHERE singleton=1")
             self.db.commit()
+        self.initialize_calendar()
         self.import_sites(sites_path)
         self._seed_demo()
         self._initialize_subscriptions(first_init)
+
+    def _backup_legacy_notices(self):
+        columns = {r[1] for r in self.db.execute('PRAGMA table_info(notices)')}
+        if not columns or not self.db.execute('SELECT 1 FROM notices WHERE is_demo=0 LIMIT 1').fetchone():
+            return
+        needs_migration = 'url_key' not in columns or 'is_attachment' not in columns
+        if not needs_migration:
+            needs_migration = bool(self.db.execute('SELECT 1 FROM notices WHERE is_demo=0 AND url_key IS NULL LIMIT 1').fetchone())
+        backup = self.db_path.with_name(f'{self.db_path.stem}.before-collector-v5{self.db_path.suffix}')
+        if needs_migration and not backup.exists():
+            destination = sqlite3.connect(backup)
+            try:
+                self.db.backup(destination)
+            finally:
+                destination.close()
+
+    def _merge_article_urls(self):
+        """Repair legacy scheme duplicates in one transaction, retaining user state."""
+        if not self.db.execute('SELECT 1 FROM notices WHERE is_demo=0 AND url_key IS NULL LIMIT 1').fetchone():
+            return
+        groups = {}
+        for row in self.db.execute('SELECT * FROM notices WHERE is_demo=0 ORDER BY id'):
+            try:
+                key = article_identity(row['url'])
+            except ValueError:
+                key = row['url']
+            groups.setdefault((row['source_id'], key), []).append(dict(row))
+        for (_, key), rows in groups.items():
+            keep = rows[0]
+            if len(rows) > 1:
+                best = max(rows, key=lambda r: (bool(r['date_verified'] and r['published_at']), bool(r['published_at']), len(r['published_at'])))
+                published = best['published_at']
+                summary = max((r['summary'] for r in rows), key=len)
+                category = next((r['category'] for r in [best] + rows if r['category'] != '校园服务'), best['category'])
+                ids = [r['id'] for r in rows]
+                marks = ','.join('?' for _ in ids)
+                messages = [dict(r) for r in self.db.execute(f'SELECT * FROM messages WHERE notice_id IN ({marks}) ORDER BY id', ids)]
+                if messages:
+                    message = messages[0]
+                    self.db.execute(f'DELETE FROM messages WHERE notice_id IN ({marks}) AND id!=?', [*ids, message['id']])
+                    self.db.execute('UPDATE messages SET notice_id=?,title=?,read=? WHERE id=?',
+                                    (keep['id'], best['title'], max(r['read'] for r in messages), message['id']))
+                for other in rows[1:]:
+                    self.db.execute('INSERT OR IGNORE INTO notice_sections(notice_id,url,label) SELECT ?,url,label FROM notice_sections WHERE notice_id=?', (keep['id'], other['id']))
+                    self.db.execute('DELETE FROM notice_sections WHERE notice_id=?', (other['id'],))
+                    self.db.execute('DELETE FROM notices WHERE id=?', (other['id'],))
+                self.db.execute('UPDATE notices SET title=?,published_at=?,category=?,summary=?,date_verified=?,date_source=?,read=?,favorite=? WHERE id=?',
+                                (best['title'], published, category, summary, best['date_verified'], best['date_source'],
+                                 max(r['read'] for r in rows), max(r['favorite'] for r in rows), keep['id']))
+            self.db.execute('UPDATE notices SET url_key=?,is_attachment=? WHERE id=?', (key, int(is_attachment(keep['url'])), keep['id']))
 
     def close(self):
         with self._lock:
@@ -155,7 +217,8 @@ class Store:
                 report = self.get_coverage(item['id'])
                 pages = report['pages']
                 item['coverage'] = {'checked': len(pages), 'pending': len(report['pending']),
-                    'failed': sum(p['status'] != '正常' for p in pages),
+                    'failed': sum(p['status'] in ('失败', '延迟') for p in pages),
+                    'unverified': sum(p['status'] == '待核验' for p in pages),
                     'sections': len(set(p['label'] for p in pages)), 'updated_at': report.get('updated_at')}
             return items
 
@@ -198,7 +261,7 @@ class Store:
             raise ValueError("limit 必须在 1 到 100 之间")
         if offset.__class__ is not int or offset < 0:
             raise ValueError("offset 必须是非负整数")
-        clauses = ["n.is_demo=?"]
+        clauses = ["n.is_demo=?", "n.is_attachment=0"]
         args = [1 if mode == "demo" else 0]
         if q:
             clauses.append("(n.title LIKE ? OR n.summary LIKE ? OR s.name LIKE ?)")
@@ -300,34 +363,41 @@ class Store:
         sub = self.get_subscriptions()
         return source_id in sub["sources"] or category in sub["categories"] or any(k in title for k in sub["keywords"])
 
-    def upsert_live_notice(self, source_id, title, published_at, category, summary, url, date_verified=False, date_source="列表日期，待原文核验"):
+    def upsert_live_notice(self, source_id, title, published_at, category, summary, url, date_verified=False, date_source="列表日期，待原文核验", metadata_extracted=False):
+        url = canonical_url(url)
+        if is_attachment(url):
+            raise ValueError('附件链接不作为通知文章入库')
+        key = article_identity(url)
+        date_verified = bool(date_verified and published_at)
         with self._lock:
-            before = self.db.total_changes
-            self.db.execute("""INSERT OR IGNORE INTO notices(source_id,title,published_at,category,summary,url,is_demo,created_at)
-                VALUES(?,?,?,?,?,?,0,?)""", (source_id,title,published_at,category,summary,url,_now()))
-            inserted = self.db.total_changes > before
-            row = self.db.execute("SELECT id,date_verified FROM notices WHERE source_id=? AND url=? AND is_demo=0", (source_id,url)).fetchone()
-            if not inserted and (date_verified or not row["date_verified"]):
-                # Re-crawling repairs extracted metadata without replacing the
-                # notice ID, user state or creating another delivery.
-                self.db.execute("UPDATE notices SET title=?,published_at=?,summary=? WHERE id=?",
-                                (title, published_at, summary, row["id"]))
-                self.db.execute("UPDATE messages SET title=? WHERE notice_id=?", (title, row["id"]))
-            if date_verified:
-                self.db.execute('UPDATE notices SET date_verified=1,date_source=? WHERE id=?', (date_source,row['id']))
-            elif not row['date_verified']:
-                self.db.execute('UPDATE notices SET date_source=? WHERE id=?', (date_source,row['id']))
-            notice = self.get_notice(row["id"])
-            if inserted and self.get_subscriptions()["in_app"] and self._matches_subscription(source_id,title,category):
+            row = self.db.execute('SELECT * FROM notices WHERE source_id=? AND url_key=? AND is_demo=0', (source_id, key)).fetchone()
+            inserted = row is None
+            if inserted:
+                cur = self.db.execute("""INSERT INTO notices(source_id,title,published_at,category,summary,url,url_key,is_demo,created_at,date_verified,date_source)
+                    VALUES(?,?,?,?,?,?,?,0,?,?,?)""", (source_id,title,published_at,category,summary,url,key,_now(),int(date_verified),date_source))
+                notice_id = cur.lastrowid
+            else:
+                notice_id = row['id']
+                verified = date_verified or (row['date_verified'] and not metadata_extracted)
+                replace_date = date_verified or not row['date_verified']
+                new_date = published_at if published_at and replace_date else row['published_at']
+                new_title = title if title and (metadata_extracted or date_verified or not row['date_verified']) else row['title']
+                new_category = category if metadata_extracted or category != '校园服务' else row['category']
+                self.db.execute('UPDATE notices SET title=?,published_at=?,category=?,summary=?,date_verified=?,date_source=? WHERE id=?',
+                                (new_title,new_date,new_category,summary or row['summary'],int(verified),
+                                 date_source if date_verified or not verified else row['date_source'],notice_id))
+                self.db.execute('UPDATE messages SET title=? WHERE notice_id=?', (new_title,notice_id))
+            notice = self.get_notice(notice_id)
+            if self.get_subscriptions()['in_app'] and self._matches_subscription(source_id,notice['title'],notice['category']):
                 self.db.execute("""INSERT OR IGNORE INTO messages(title,source_name,created_at,notice_id,is_demo)
-                    VALUES(?,?,?,?,0)""", (title, notice["source_name"], _now(), notice["id"]))
+                    VALUES(?,?,?,?,0)""", (notice['title'],notice['source_name'],_now(),notice_id))
             self.db.commit()
             return notice, inserted
 
     def list_messages(self, mode="demo"):
         is_demo = 1 if mode == "demo" else 0
         with self._lock:
-            rows = [dict(r) for r in self.db.execute("SELECT * FROM messages WHERE is_demo=? ORDER BY created_at DESC,id DESC", (is_demo,))]
+            rows = [dict(r) for r in self.db.execute("SELECT * FROM messages WHERE is_demo=? AND notice_id IN (SELECT id FROM notices WHERE is_attachment=0) ORDER BY created_at DESC,id DESC", (is_demo,))]
         for row in rows: row["read"], row["is_demo"] = bool(row["read"]), bool(row["is_demo"])
         return {"items": rows, "unread": sum(not x["read"] for x in rows)}
 
@@ -348,9 +418,16 @@ class Store:
             self.db.commit()
         return self.get_settings()
 
-    def unverified_articles(self, source_id):
+    def find_live_notice_id(self, source_id, url):
         with self._lock:
-            return [dict(r) for r in self.db.execute('SELECT url,title FROM notices WHERE source_id=? AND is_demo=0 AND date_verified=0 ORDER BY published_at DESC', (source_id,))]
+            row = self.db.execute('SELECT id FROM notices WHERE source_id=? AND url_key=? AND is_demo=0 AND is_attachment=0',
+                                  (source_id, article_identity(url))).fetchone()
+            return row['id'] if row else None
+
+    def unverified_articles(self, source_id, include_verified=False):
+        with self._lock:
+            condition = '' if include_verified else ' AND date_verified=0'
+            return [dict(r) for r in self.db.execute('SELECT url,title FROM notices WHERE source_id=? AND is_demo=0 AND is_attachment=0' + condition + ' ORDER BY published_at DESC', (source_id,))]
 
     def get_coverage(self, site_id):
         with self._lock:

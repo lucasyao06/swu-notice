@@ -84,7 +84,7 @@ def safe_link(base, href):
 
 
 def article_publication(content):
-    published=public_date(extract_article_metadata(content).get('published_at'))
+    published=public_date(extract_article_metadata(content, allow_unlabelled_time=False).get('published_at'))
     if published:
         return published
     # COMAP and other English sites use semantic <time> in a publication

@@ -1,0 +1,126 @@
+const {chromium}=require(process.env.PLAYWRIGHT_PATH||'playwright');
+const {spawn}=require('node:child_process');
+const assert=require('node:assert/strict');
+const path=require('node:path');
+const {dockNavigate}=require('./helpers/dock.cjs');
+const root=path.resolve(__dirname,'..');
+async function wait(url){for(let i=0;i<100;i++){try{if((await fetch(url)).ok)return}catch{}await new Promise(r=>setTimeout(r,100))}throw Error(`Server unavailable: ${url}`)}
+async function api(route,body){const r=await fetch(`http://127.0.0.1:8876/api/${route}`,body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{});assert.ok(r.ok);return r.json()}
+(async()=>{
+ const backend=spawn('python3',['tests/fixture_backend.py',path.resolve(root,'../swu-notice-monitor')],{cwd:root,stdio:'ignore'});
+ const vite=spawn(process.execPath,['node_modules/vite/bin/vite.js','--host','127.0.0.1','--port','5181','--strictPort'],{cwd:root,env:{...process.env,SWU_API_TARGET:'http://127.0.0.1:8876'},stdio:'ignore'});
+ let browser;
+ try{
+  await wait('http://127.0.0.1:8876/api/health');await wait('http://127.0.0.1:5181');
+  const list=await api('calendar/lists',{name:'本学期课程',color:'purple'});
+  const recurring=await api('calendar/events',{title:'每周复习',date:'2026-10-04',time:'09:00',end_time:'10:00',repeat:'weekly',category:'study'});
+  browser=await chromium.launch({headless:true,executablePath:process.env.CHROME_PATH});
+  const page=await browser.newPage({viewport:{width:390,height:844},timezoneId:'Asia/Shanghai',reducedMotion:'reduce',hasTouch:true});
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.clock.install({time:new Date('2026-10-04T10:00:00+08:00')});
+  await page.goto('http://127.0.0.1:5181');await dockNavigate(page,'日程');
+  assert.equal(await page.getByRole('button',{name:'日',exact:true}).getAttribute('aria-pressed'),'true','Phone must start in day view');
+  assert.equal(await page.locator('.week-day-column').count(),1);
+  assert.equal(await page.locator('.schedule-extra').isVisible(),false);
+  await page.getByRole('button',{name:'筛选',exact:true}).click();assert.ok(await page.getByRole('button',{name:'新建清单',exact:true}).isVisible());
+  await page.getByRole('button',{name:'筛选',exact:true}).click();
+  const touch=await page.context().newCDPSession(page);
+  async function swipe(x,from,to){await touch.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y:from}]});for(let i=1;i<=12;i++){await touch.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x,y:from+(to-from)*i/12}]});await new Promise(r=>setTimeout(r,16))}await touch.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]})}
+  const scroll=page.locator('.week-scroll'),viewport=await scroll.boundingBox(),oldScroll=await scroll.evaluate(el=>el.scrollTop);
+  await swipe(250,viewport.y+240,viewport.y+100);assert.ok(await scroll.evaluate(el=>el.scrollTop)>oldScroll,'Touch should scroll normally');assert.equal(await page.locator('.schedule-editor').count(),0);await new Promise(r=>setTimeout(r,600));
+  await scroll.evaluate(el=>el.scrollTop=8*52);
+  await page.getByRole('button',{name:'选择时段',exact:true}).tap();
+  const dayColumn=await page.locator('.week-day-column').boundingBox();await swipe(250,dayColumn.y+12*52,dayColumn.y+13.5*52);
+  await page.getByRole('dialog',{name:'新建日程'}).waitFor();
+  assert.equal(await page.getByLabel('开始时间',{exact:true}).inputValue(),'12:00');assert.equal(await page.getByLabel('结束时间',{exact:true}).inputValue(),'13:30');
+  await page.getByRole('button',{name:'取消编辑',exact:true}).click();
+  const tapColumn=await page.locator('.week-day-column').boundingBox();
+  await page.touchscreen.tap(250,tapColumn.y+14*52);
+  await page.getByRole('dialog',{name:'新建日程'}).waitFor();
+  assert.equal(await page.getByLabel('开始时间',{exact:true}).inputValue(),'14:00');assert.equal(await page.getByLabel('结束时间',{exact:true}).inputValue(),'15:00');
+  await page.getByRole('button',{name:'取消编辑',exact:true}).click();
+  await page.getByRole('button',{name:'周',exact:true}).click();
+  const today=await page.locator('.week-heading .today').boundingBox();
+  const shell=await page.locator('.schedule-week').boundingBox();
+  assert.ok(today.x>=shell.x-1&&today.x+today.width<=Math.min(390,shell.x+shell.width)+1,'Sunday must be visible on entry');
+  const selectTool=await page.getByRole('button',{name:'选择时段',exact:true}).boundingBox();
+  assert.ok(selectTool.x>=shell.x&&selectTool.x+selectTool.width<=390,'Week touch tools must stay visible while browsing Sunday');
+  await page.locator('.schedule-week').evaluate(el=>el.scrollLeft=0);
+  await page.clock.runFor(31000);
+  assert.equal(await page.locator('.schedule-week').evaluate(el=>el.scrollLeft),0,'A refresh must preserve manual horizontal browsing');
+  await page.locator('.month-nav').getByRole('button',{name:'今天',exact:true}).click();
+  assert.ok((await page.locator('.week-heading .today').boundingBox()).x<390,'Today must reveal Sunday again');
+  await page.setViewportSize({width:768,height:900});await page.getByRole('button',{name:'日',exact:true}).click();
+  const tabletViewport=await scroll.boundingBox(),tabletScroll=await scroll.evaluate(el=>el.scrollTop);
+  await swipe(600,tabletViewport.y+240,tabletViewport.y+100);
+  assert.ok(await scroll.evaluate(el=>el.scrollTop)>tabletScroll,'Tablet touch should scroll normally');await new Promise(r=>setTimeout(r,600));
+  await page.getByRole('button',{name:'周',exact:true}).click();
+  await page.setViewportSize({width:1440,height:900});
+  await page.getByRole('checkbox',{name:'完成日程：每周复习',exact:true}).check();
+  await page.getByRole('status').filter({hasText:'下次安排'}).waitFor();
+  assert.equal(await page.locator('.schedule-editor').count(),0,'Direct completion must not open the editor');
+  const successor=(await api('calendar/events')).items.find(e=>e.title==='每周复习'&&!e.completed);
+  assert.equal(successor.date,'2026-10-11');
+  await page.route(`**/api/calendar/events/${recurring.id}`,route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:'无法更改完成状态'})}));
+  await page.getByRole('checkbox',{name:'完成日程：每周复习',exact:true}).uncheck();
+  await page.getByRole('alert').filter({hasText:'无法更改完成状态'}).waitFor();
+  assert.ok(await page.getByRole('checkbox',{name:'完成日程：每周复习',exact:true}).isChecked(),'Failed completion must roll back');
+  assert.equal((await api('calendar/events')).items.find(e=>e.id===recurring.id).completed,true);
+  await page.unroute(`**/api/calendar/events/${recurring.id}`);
+  await page.getByRole('button',{name:'下一周',exact:true}).click();
+  await page.getByRole('complementary',{name:'日程导航'}).getByRole('button',{name:'今天',exact:true}).click();
+  await page.getByRole('button',{name:'新建日程',exact:true}).click();assert.equal(await page.getByLabel('日期',{exact:true}).inputValue(),'2026-10-04');await page.getByRole('button',{name:'取消编辑',exact:true}).click();
+  await page.getByRole('complementary',{name:'日程导航'}).getByRole('button',{name:'收集箱',exact:true}).click();
+  const quick=page.getByRole('textbox',{name:'快速添加任务',exact:true});
+  await page.getByRole('button',{name:'明天',exact:true}).click();
+  await page.getByRole('complementary',{name:'日程导航'}).getByRole('button',{name:'未安排',exact:true}).click();
+  await page.locator('.quick-date-row').getByRole('button',{name:'未安排',exact:true}).and(page.locator('[aria-pressed="true"]')).waitFor();
+  assert.equal(await page.locator('.quick-date-row').getByRole('button',{name:'未安排',exact:true}).getAttribute('aria-pressed'),'true','Scope changes reset shortcut dates');
+  await page.getByRole('complementary',{name:'日程导航'}).getByRole('button',{name:'收集箱',exact:true}).click();
+  await quick.fill('连续录入第一项');await quick.press('Enter');
+  await page.getByRole('checkbox',{name:'完成日程：连续录入第一项'}).waitFor();
+  assert.equal((await api('calendar/events')).items.find(e=>e.title==='连续录入第一项').date,'');
+  assert.equal(await quick.inputValue(),'');assert.ok(await quick.evaluate(el=>el===document.activeElement));
+  await quick.fill('失败时保留的输入');
+  await page.route('**/api/calendar/events',route=>route.request().method()==='POST'?route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:'暂时无法保存'})}):route.continue());
+  await quick.press('Enter');await page.getByRole('alert').filter({hasText:'暂时无法保存'}).waitFor();
+  assert.equal(await quick.inputValue(),'失败时保留的输入');await page.unroute('**/api/calendar/events');
+  await quick.press('Enter');await page.getByRole('checkbox',{name:'完成日程：失败时保留的输入'}).waitFor();
+  assert.equal((await api('calendar/events')).items.filter(e=>e.title==='失败时保留的输入').length,1);
+  await page.locator('.custom-list-nav').getByRole('button',{name:/^本学期课程/}).click();
+  await quick.fill('清单内快速任务');await page.getByRole('button',{name:'明天',exact:true}).click();await quick.press('Enter');
+  await page.getByRole('checkbox',{name:'完成日程：清单内快速任务'}).waitFor();
+  const captured=(await api('calendar/events')).items.find(e=>e.title==='清单内快速任务');assert.equal(captured.list_id,list.id);assert.equal(captured.date,'2026-10-05');
+  await page.screenshot({path:'/private/tmp/schedule-round-one-capture.png'});
+  await page.locator('.schedule-list-row').filter({hasText:'清单内快速任务'}).getByRole('button').click();
+  for(const label of ['日期','所属清单','优先级','重复规则','提醒'])assert.ok(await page.getByLabel(label,{exact:true}).isVisible(),`${label} must be visible without expanding time settings`);
+  await page.getByLabel('重复规则',{exact:true}).selectOption('weekly');await page.getByLabel('提醒',{exact:true}).selectOption('15');
+  await page.getByText(/网页打开时提醒/).waitFor();await page.getByText(/提醒时间：/).waitFor();
+  await page.screenshot({path:'/private/tmp/schedule-round-one-editor.png'});
+  await page.getByRole('button',{name:'保存日程',exact:true}).click();await page.locator('.schedule-editor').waitFor({state:'hidden'});
+  await quick.fill('切换视图保留草稿');await page.getByRole('button',{name:'周',exact:true}).click();await page.getByRole('button',{name:'清单',exact:true}).click();assert.equal(await quick.inputValue(),'切换视图保留草稿');await quick.fill('');
+  await page.getByRole('complementary',{name:'日程导航'}).getByRole('button',{name:'全部日程',exact:true}).click();
+  await page.getByRole('button',{name:'月',exact:true}).click();assert.equal(await page.locator('.agenda-search').count(),0);
+  await page.getByRole('textbox',{name:'搜索所有日程'}).fill('没有这个任务');
+  await page.locator('.agenda-panel').getByRole('button',{name:'清除筛选',exact:true}).click();assert.equal(await page.getByRole('textbox',{name:'搜索所有日程'}).inputValue(),'');
+  await page.screenshot({path:'/private/tmp/schedule-round-one-desktop.png'});
+  for(const width of [1440,1280,1024,768,390])for(const phase of ['day','moonlight']){
+   await page.setViewportSize({width,height:900});
+   await dockNavigate(page,'设置');await page.getByRole('combobox',{name:'光线氛围'}).selectOption(phase);await dockNavigate(page,'日程');
+   const tabs=page.locator('[aria-label="日程视图切换"]');const origin=await tabs.boundingBox();
+   for(const view of ['日','周','月','清单']){
+    await tabs.getByRole('button',{name:view,exact:true}).click();const box=await tabs.boundingBox();assert.ok(Math.abs(box.x-origin.x)<=1&&Math.abs(box.y-origin.y)<=1,`${width}/${phase}/${view}: stable view controls`);
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`${width}/${phase}/${view}: no page overflow`);
+    if(width>=1000)assert.ok(await page.evaluate(()=>document.documentElement.scrollHeight<=innerHeight+1),'Desktop must fit');
+   }
+   if(width===390){await tabs.getByRole('button',{name:'日',exact:true}).click();await page.screenshot({path:`/private/tmp/schedule-round-one-mobile-${phase}.png`})}
+  }
+  await page.setViewportSize({width:1280,height:800});
+  await api('calendar/events',{title:'到点课程提醒',date:'2026-10-04',time:'11:00',reminder_minutes:60});
+  await page.reload();await page.getByRole('complementary',{name:'日程提醒'}).waitFor();
+  await page.getByRole('complementary',{name:'日程提醒'}).getByText(/提醒时间：.*10:00/).waitFor();
+  await page.getByRole('button',{name:/到点课程提醒/}).click();await page.getByRole('dialog',{name:'编辑日程'}).waitFor();
+  assert.equal(await page.getByLabel('日程标题',{exact:true}).inputValue(),'到点课程提醒');
+  assert.deepEqual(errors,[]);console.log('Round one passed: mobile today/day view, direct recurring completion, quick capture defaults/retry/focus, editor fields, search/empty states, reminders and responsive day/night layout.');
+ }finally{await browser?.close();backend.kill('SIGTERM');vite.kill('SIGTERM')}
+})().catch(e=>{console.error(e);process.exit(1)});

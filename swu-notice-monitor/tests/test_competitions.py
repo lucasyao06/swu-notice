@@ -127,6 +127,8 @@ class CompetitionTests(unittest.TestCase):
         rows,_ = parse_listing(rss,'https://comap.org/',{})
         self.assertEqual('2025-12-01',rows[0]['published_at'])
         self.assertEqual('2026-05-08',article_publication('<div>Written on <time datetime="2026-05-08T13:39:02-04:00">May 8, 2026</time>. Posted in Math Contests.</div><h1>2026 MCM/ICM results</h1>'))
+        self.assertEqual('',article_publication('<article><time datetime="2026-05-08">May 8, 2026</time></article>'))
+        self.assertEqual('2026-05-08',article_publication('<meta property="article:published_time" content="2026-05-08"><article>比赛时间 <time datetime="2026-05-09"></time></article>'))
         self.assertEqual('',article_publication('<article>比赛时间 <time datetime="2026-05-08">May 8, 2026</time></article>'))
 
     def test_missing_year_and_future_dates_never_invented(self):

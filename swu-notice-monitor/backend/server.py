@@ -83,7 +83,7 @@ class APIHandler(BaseHTTPRequestHandler):
             return self._send(403, {"error": "不允许的来源"})
         self.send_response(204)
         self.send_header("Access-Control-Allow-Origin", origin)
-        self.send_header("Access-Control-Allow-Methods", "GET, PATCH, PUT, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Methods", "GET, PATCH, PUT, POST, DELETE, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.send_header("Vary", "Origin")
         self.end_headers()
@@ -96,6 +96,11 @@ class APIHandler(BaseHTTPRequestHandler):
     def _get(self):
         parsed = self._parsed(); path = parsed.path; query = urllib.parse.parse_qs(parsed.query)
         one = lambda key, default="": query.get(key, [default])[0]
+        if path == "/api/calendar/lists":
+            return self._send(200, {"items": self.server.store.list_calendar_lists()})
+        if path == "/api/calendar/events":
+            return self._send(200, {"items": self.server.store.list_events()})
+
         if path.startswith('/api/competition/'):
             return competition_api(self,'GET',path,query=query)
         if path == "/api/health":
@@ -134,6 +139,25 @@ class APIHandler(BaseHTTPRequestHandler):
         if not origin_allowed(self.headers.get("Origin")): return self._send(403, {"error": "不允许的来源"})
         path = self._parsed().path
         body = self._body()
+        if path == '/api/calendar/lists' and method == 'POST':
+            return self._send(201, self.server.store.create_calendar_list(body))
+        if path.startswith('/api/calendar/lists/'):
+            list_id = int(path.rsplit('/', 1)[1])
+            if method == 'PATCH':
+                item = self.server.store.update_calendar_list(list_id, body)
+                return self._send(200, item) if item else self._send(404, {'error': '清单不存在'})
+            if method == 'DELETE':
+                return self._send(200, {'ok': True}) if self.server.store.delete_calendar_list(list_id) else self._send(404, {'error': '清单不存在'})
+        if path == '/api/calendar/events' and method == 'POST':
+            return self._send(201,self.server.store.create_event(body))
+        if path.startswith('/api/calendar/events/'):
+            event_id=int(path.rsplit('/',1)[1])
+            if method == 'PATCH':
+                item=self.server.store.update_event(event_id,body)
+                return self._send(200,item) if item else self._send(404,{'error':'日程不存在'})
+            if method == 'DELETE':
+                return self._send(200,{'ok':True}) if self.server.store.delete_event(event_id) else self._send(404,{'error':'日程不存在'})
+
         if path.startswith('/api/competition/'):
             return competition_api(self,method,path,body=body)
         if method == 'POST' and path == '/api/crawl/stop':
@@ -188,6 +212,10 @@ class APIHandler(BaseHTTPRequestHandler):
         except Exception as exc: self._send(500,{"error":str(exc)})
     def do_PUT(self):
         try: self._mutate("PUT")
+        except (ValueError,KeyError) as exc: self._send(400,{"error":str(exc)})
+        except Exception as exc: self._send(500,{"error":str(exc)})
+    def do_DELETE(self):
+        try: self._mutate("DELETE")
         except (ValueError,KeyError) as exc: self._send(400,{"error":str(exc)})
         except Exception as exc: self._send(500,{"error":str(exc)})
     def do_POST(self):

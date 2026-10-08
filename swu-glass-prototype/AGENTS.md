@@ -1,0 +1,59 @@
+# Prototype Instructions
+
+Run the local server yourself and open the preview in the browser available to this environment. Do not give the user server-start instructions when you can run it.
+
+Before making substantial visual changes, use the Product Design plugin's `get-context` skill when the visual source is unclear or no longer matches the current goal. When the user gives durable prototype-specific design feedback, preferences, or decisions, record them in `AGENTS.md`.
+
+When implementing from a selected generated mock, treat that image as the source of truth for layout, component anatomy, density, spacing, color, typography, visible content, and hierarchy.
+
+Build app UI in `src/`. Keep `.openai/hosting.json`, `worker/index.js`, `scripts/prepare-sites-build.mjs`, and `tests/sites-worker.test.mjs` intact so the same local prototype can be handed to Sites. Before a Sites handoff, run `npm run build` and `npm run test:sites`; the build must leave `dist/client/index.html`, `dist/server/index.js`, and `dist/.openai/hosting.json`.
+
+## Accepted product and integration constraints
+Keep small typography (16px notice/section titles), homepage-only hero/date strip, floating header, persistent bottom Dock, horizontal navigation and reduced-motion support. Subscription/source/settings are pages, not dialogs. Main notice panels are pale and readable; liquid-glass is reserved for supporting controls, without dark edge shadows. Desktop pages should fit the viewport; paginate data rather than cram more records.
+Backend access must go through data adapters/repositories/hooks. Never fetch directly from presentation components, read SQLite from the frontend, or silently substitute demo data on API failures. Test writes against an isolated database; read-only smoke checks may use the actual local backend.
+
+Ambient lighting follows device-local system time by default: morning 05–10, day 10–17, sunset 17–19, moonlight otherwise. Keep manual override, soft crossfades, focus/visibility recalibration and reduced-motion support. Daytime notice panels stay pale/readable. Moonlight must be a true black/dark theme with dark panels and light text across every page, dialog and control, as explicitly corrected by the user. New lighting preference uses swu-glass:lighting-mode; the legacy two-mode daylight default is superseded.
+
+Product-facing copy must not contain developer/prototype instructions, backend architecture explanations, local-single-user notes, integration disclaimers, or implementation plans. Keep concise functional labels, honest demo/data status, errors and actionable input guidance. Empty footer provides only a small page-edge inset; the auto-hidden Dock does not reserve its expanded footprint.
+Floating header needs modest breathing room from the browser edge: 12px top inset on desktop, 6px on mobile. Preserve single-screen desktop layout.
+Reading flow: preview alone must never mark a notice or its message as read. The primary preview action is 阅读详情, which opens the original URL and then records read state plus corresponding messages. No 完成阅读 action. Missing URLs or blocked popups must not mark read. Show read indicators only for subscription matches or explicitly important notices.
+Pagination scrubber ticks must be equal-height at rest. Only during dragging/key scrubbing, nearby ticks form a local Dock-like symmetric magnification above and below the centerline following the thumb; release returns them to equal height. Respect reduced motion and the motion-off setting.
+最近更新 shows up to the three newest subscription-matching notices in the existing timeline style. Never fill missing slots with global notices; use 暂无订阅更新 for an empty result. Its scope label is 我的订阅, not 今天.
+Header controls must reserve space for 99+ badge padding and select arrows. On mobile use explicit two-row header grid; never let the profile create an accidental third row. Audit day/night control overflow with real long unit names and preserve single-screen desktop layouts.
+Calendar is a separate Dock page and homepage date-card destination. Scope: month view, daily tasks, create/edit/delete, all-day/start/end times, priorities, completion, notice-to-event, browser-open in-app reminders. Events are independently persisted via calendarRepository/useCalendarData and backend CalendarMixin; keep demo isolated. Do not promise notifications after browser closes.
+
+The user-facing feature is 日程, not 日历. Default to a weekly hourly schedule with colored category blocks, all-day row, drag rescheduling and overlap lanes. Keep month and cross-date list views; classify study/work/activity/personal/other, persist location, and provide all/today/next-7-days/overdue scopes. Only the time grid or task list scrolls on desktop, not the overall page.
+
+Schedule workspace uses a near-opaque light/dark background panel for readability. Week header, all-day cells and hourly grid must share aligned columns including scrollbar width. Drag blank time slots in either direction to create a prefilled time range; show a selection preview, use 15-minute increments and allow Escape to cancel.
+
+Task management follows TickTick basic interaction: preserve the blue selected time block and open an anchored opaque editor without shrinking the week grid. Support inbox (undated tasks), user-created lists, subtasks, daily/weekly/monthly recurrence, priorities/reminders and start/end resize handles. Recurrence generates the next task on completion, never duplicates on undo/recomplete; list deletion preserves tasks.
+
+Schedule design follows the user’s September 30 reference: pale blue navigation, spacious aligned week grid, pastel category blocks, opaque anchored editor and a floating Dock. Hover lifts events only 2px; editor transitions stay at 220ms enter / 150ms exit; Dock icons magnify continuously by pointer distance, maximum 1.22, with stable click targets. Ambient rays are low intensity with 56–72 second cycles. All motion respects the motion-off preference and prefers-reduced-motion. Keep true dark surfaces in moonlight and preserve calendar CRUD, selection, resizing, lists, subtasks and recurrence.
+
+The schedule page is a dedicated full-viewport workspace: omit the platform topbar, logo, notice search, greeting, profile and notice-loading/error banners there. Keep schedule search and calendar errors within the workspace, preserve the bottom Dock, and keep the platform header on other pages. This supersedes the general floating-header requirement for the schedule page only.
+
+Schedule polish: metadata, notes and add-subtask rows share a fixed 20px icon column and a 12px gap; remove native select text insets so all content starts on the same vertical line. Keep the toolbar compact with aligned 32px controls, narrow view tabs and a shorter weekday header, while retaining 8–16px group spacing and responsive wrapping.
+
+The bottom Dock now auto-hides on every page. During browsing show only a theme-aware horizontal handle; hover reveals the complete Dock with a gentle upward transition and mouse departure hides it. Keep a continuous hit area from handle to icons, stable page layout, tap/outside-dismiss support on touch, keyboard focus/Tab/Escape access and inert hidden navigation. Hidden Dock glass motion must stop, and reduced-motion/motion-off uses instant show/hide. This supersedes the always-visible Dock behavior.
+
+Dock hover feedback must move the icon, label and selection background together in a centered inner group. Keep the outer click target stable, scale from the group center and reserve enough padding so the full group stays within the floating Dock at maximum magnification. Never independently lift the icon above its selection surface.
+
+The collapsed Dock handle and the expanded Dock must share the same horizontal and vertical center near the bottom. Hovering the bar must leave the pointer directly inside the revealed navigation, with no upward travel gap. The invisible handle must stop intercepting pointer input while the Dock is expanded.
+
+Dark mode uses neutral black/charcoal backgrounds, neutral gray borders and text, across every page and popup. Blue is a functional accent for selection/actions, not the surface palette. Keep content and bottom action wrappers transparent where they belong to the same parent surface. Do not mount liquid-glass lenses in dark mode: their extra highlight/border layers expose distracting inner plates and duplicate outlines. Retain glass treatment in daylight and semantic category/status colors.
+
+The auto-hidden Dock must return space to content: retain only a 16px page edge, never reserve a full Dock-height blank band. The expanded Dock is a transient overlay and must not resize content. Keep its center aligned with the collapsed handle. Arrange actual pagination and bottom action controls away from the small collapsed trigger, rather than shrinking the whole page to accommodate the expanded navigation. Check content occupancy and real input hit areas in day/night and desktop/mobile layouts. This supersedes the earlier shared bottom-band requirement.
+
+Schedule sidebar scope changes must restore the previously selected week/month/list view when returning to 全部日程. Preserve the selected date and week time-grid scroll position across temporary scopes such as 未安排, 今天, 最近 7 天, 逾期 and custom lists; navigation must never modify persisted tasks.
+
+The schedule toolbar and search/filter row occupy a shared header spanning the calendar and agenda columns. Week/month/list view controls must keep the same position across view changes; on desktop, the monthly calendar and daily agenda share aligned top and bottom edges below that header. Keep the responsive layout compact without page overflow.
+
+Schedule search, status filter and today’s task count belong in the top toolbar beside date navigation and view/actions on desktop, rather than a separate full-width band below. Bring calendar/list content upward by removing that band. Keep compact wrapping on narrower screens, stable view controls and aligned month/agenda panels. This supersedes the earlier separate search/filter row layout.
+
+First-round schedule usability: phones <=600px initially use a single-day hourly view, desktop retains the week view. Week navigation reveals the selected day on narrow screens; manual horizontal scrolling must remain stable during data refresh. Keep 日/周/月/清单 controls fixed across view changes and preserve date/time-grid scroll on scope returns. Mobile scope navigation is one horizontal strip, with lists/categories behind an explicit 筛选 control.
+
+Touch time grids scroll normally and allow a tap on blank space to create a one-hour draft. Use the explicit 选择时段 control before dragging a range, then return to browsing after selection. Keep desktop blank-slot dragging and touch resize handles; never disable normal scrolling globally to support range selection.
+
+List view provides continuous inline task capture, Enter to save, and explicit unscheduled/today/tomorrow/custom-date shortcuts. Today scope defaults to today; inbox, unscheduled, all and custom lists default to undated tasks. Retain current list/category and failed input; preserve capture text while switching views. Editor date, list, priority, reminder and recurrence are directly visible; 时间安排 contains only all-day/start/end controls. Month view has one global search. Empty results offer clear filters; empty scopes offer add.
+
+Time blocks have direct completion checkboxes separate from edit and resize controls. Completion updates immediately and rolls back on save failure; recurring completion reports the next generated date. Category colors retain the same meaning in week/day/month/list, with independent priority markers. Reminders show their actual reminder date/time and remain browser-open reminders. This supersedes the earlier phone week default and hidden task-properties arrangement.

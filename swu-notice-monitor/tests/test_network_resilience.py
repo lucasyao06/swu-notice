@@ -4,7 +4,7 @@ from backend import collector as c
 class NetworkResilienceTests(unittest.TestCase):
  def test_benchmark_ipv6_with_registered_https_proxy(self):
   dns=[(socket.AF_INET6,1,6,'',('2001:2::2e',443,0,0))]
-  with patch('socket.getaddrinfo',return_value=dns),patch('urllib.request.getproxies',return_value={'https':'http://127.0.0.1:7890'}),patch('urllib.request.proxy_bypass',return_value=False):c.validate_fetch_url('https://dzb.swu.edu.cn/')
+  with patch.dict('os.environ',{'SWU_NETWORK_MODE':'auto'}),patch('socket.getaddrinfo',return_value=dns),patch('urllib.request.getproxies',return_value={'https':'http://127.0.0.1:7890'}),patch('urllib.request.proxy_bypass',return_value=False):c.validate_fetch_url('https://dzb.swu.edu.cn/')
  def test_transient_fetch_retry_then_success(self):
   with patch.object(c,'_fetch_html_once',side_effect=[urllib.error.URLError(TimeoutError('timeout')),('ok','https://dzb.swu.edu.cn/')]) as fetch,patch.object(c.time,'sleep'):
    self.assertEqual(('ok','https://dzb.swu.edu.cn/'),c.fetch_html(None,'https://dzb.swu.edu.cn/','test',1024));self.assertEqual(2,fetch.call_count)

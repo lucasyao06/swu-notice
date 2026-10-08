@@ -1,5 +1,5 @@
 # Dependencies and builds
-node_modules/
+node_modules
 dist/
 .venv/
 venv/
@@ -29,7 +29,7 @@ swu-notice-monitor/data/*
 .idea/
 .vscode/
 # Generated QA captures
-**/docs/*.png
-**/docs/*.json
+**/docs/**/*.png
+**/docs/**/*.json
 
 !swu-notice-monitor/data/college_competition_rules.json

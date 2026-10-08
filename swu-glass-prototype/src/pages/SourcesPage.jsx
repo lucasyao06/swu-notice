@@ -1,5 +1,6 @@
 import React,{useEffect,useMemo,useState} from 'react';
 import {Building2,Search,ExternalLink,Layers} from 'lucide-react';
+import {SourceInsights} from './SourceInsights.jsx';
 import {Pager} from './WorkspaceParts.jsx';
 const PAGE_SIZE=5;
 function checkedTime(value){if(!value)return '尚未检查';const date=new Date(value);return Number.isNaN(date.getTime())?'时间待确认':new Intl.DateTimeFormat('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(date)}
@@ -21,6 +22,7 @@ export function SourcesPage({sites,subscriptions,pending,onFollow,mode}){
      {!items.length&&<div className="directory-empty"><Search size={24}/><p>没有符合条件的来源</p><button className="secondary" onClick={()=>{setQuery('');setType('');setStatus('');setScope('all');setPage(0)}}>清空筛选</button></div>}
     </div><Pager page={page} total={items.length} size={PAGE_SIZE} onChange={setPage}/>
    </section>
+   <SourceInsights sites={sites} subscriptions={subscriptions}/>
   </div>
  </>;
 }

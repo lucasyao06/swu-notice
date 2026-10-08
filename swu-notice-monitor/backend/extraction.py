@@ -2,7 +2,8 @@
 import re
 from datetime import datetime, date
 from html.parser import HTMLParser
-from urllib.parse import urljoin, urlsplit
+from urllib.parse import urlsplit
+from .urls import resolve_page_link
 
 DATE = re.compile(r'(?<!\d)((?:19|20)\d{2})\s*[-年/.]\s*(\d{1,2})\s*[-月/.]\s*(\d{1,2})(?!\d)日?')
 VOID={'area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr'}
@@ -43,6 +44,12 @@ def is_date(n):
 def is_body(n):
     return bool(re.search(r'v_news_content|vsb_content|article[-_]body|article[-_]content|news[-_]content|\bsummary\b|\bintro\b|\bdesc(?:ription)?\b',n.cls))
 
+def in_body(n):
+    while n:
+        if is_body(n):return True
+        n=n.parent
+    return False
+
 def node_date(n):
     text=normalized(n.text())
     result=next(dates(n.attrs.get('datetime','')+' '+text),None)
@@ -75,7 +82,8 @@ def discover_articles(html,base_url):
     root=Tree(html).root;out=[];seen=set()
     for a in root.walk():
         if a.tag!='a':continue
-        url=urljoin(base_url,a.attrs.get('href','')).split('#')[0]
+        url=resolve_page_link(base_url,a.attrs.get('href',''))
+        if not url:continue
         if url in seen or not article_url(url) or urlsplit(url).hostname!=urlsplit(base_url).hostname:continue
         title=anchor_title(a)
         if not title or re.fullmatch(r'\d+|首页|尾页|末页|上(?:一)?页|下(?:一)?页|Next|Previous|[<>«»‹›]+',title,re.I):continue
@@ -86,7 +94,9 @@ def extract_notices(html,base_url):
     root=Tree(html).root;out=[];seen=set()
     for a in root.walk():
         if a.tag!='a':continue
-        href=a.attrs.get('href','');url=urljoin(base_url,href).split('#')[0];p=urlsplit(url)
+        href=a.attrs.get('href','');url=resolve_page_link(base_url,href)
+        if not url:continue
+        p=urlsplit(url)
         title=anchor_title(a)
         if not href or href.startswith(('#','javascript:')) or p.hostname!=urlsplit(base_url).hostname or p.scheme not in ('http','https') or p.path in ('','/') or len(title)<2 or url in seen:continue
         if title in ('首页','更多','查看详情','上一页','下一页'):continue
@@ -96,14 +106,14 @@ def extract_notices(html,base_url):
             anchors=[x for x in current.walk() if x.tag=='a' and anchor_title(x) not in ('更多','查看详情')]
             if len({x.attrs.get('href') for x in anchors})>1:break
             for n in current.walk():
-                if is_date(n) and not is_body(n):
+                if is_date(n) and not in_body(n):
                     published=node_date(n)
                     if published:break
             if not published:
                 # Date-only siblings, never dates from summaries or article titles.
                 for n in current.walk():
                     t=normalized(n.text())
-                    if n is not a and not any(x.tag=='a' for x in n.walk()) and not is_body(n):
+                    if n is not a and not any(x.tag=='a' for x in n.walk()) and not in_body(n):
                         if re.fullmatch(r'[\d\s年月日./\-\[\]:]+',t):
                             published=node_date(n)
                             if published:break
@@ -118,10 +128,10 @@ def extract_notices(html,base_url):
             seen.add(url);out.append((title,published,url))
     return out
 
-def extract_article_metadata(html):
+def extract_article_metadata(html, section='', *, allow_unlabelled_time=True):
     root=Tree(html).root;nodes=list(root.walk());title='';published=None;source='';date_text=''
     def strict_body(n):
-        return bool(re.search(r'(?:^|\s)(?:v_news_content|vsb_content[^\s]*|article[-_]body)(?:\s|$)',n.cls))
+        return bool(re.search(r'(?:^|\s)(?:v_news_content|vsb_content[^\s]*|article[-_]body|news[-_]content|summary|intro|description)(?:\s|$)',n.cls))
     def excluded(n):
         while n:
             if strict_body(n) or n.tag in ('script','style','nav','footer','aside'):return True
@@ -133,7 +143,7 @@ def extract_article_metadata(html):
         key=(n.attrs.get('name') or n.attrs.get('property') or n.attrs.get('itemprop') or '').lower()
         value=n.attrs.get('content','')
         if key in ('articletitle','og:title','headline') and not title:title=normalized(value)
-        if key in ('pubdate','publishdate','publishedtime','article:published_time','datepublished','dc.date.issued'):
+        if not excluded(n) and key in ('pubdate','publishdate','publishedtime','article:published_time','datepublished','dc.date.issued'):
             candidate=next(dates(value),None)
             if candidate:published=candidate;source='原文发布元数据';date_text=value
     if not title:
@@ -155,12 +165,51 @@ def extract_article_metadata(html):
         for n in header:
             text=normalized(n.text())
             if len(text)>250 or any(strict_body(x) for x in n.walk()):continue
-            if (is_date(n) and n.attrs.get('datetime')) or (re.search(r'作者|审核|浏览|来源',text) and len(list(dates(text)))==1):
-                published=next(dates(text),None);source='原文信息栏';date_text=n.attrs.get('datetime','') or text;break
+            if (allow_unlabelled_time and is_date(n) and n.attrs.get('datetime')) or (re.search(r'作者|审核|浏览|来源',text) and len(list(dates(text)))==1):
+                candidate=node_date(n)
+                if candidate:
+                    published=candidate;source='原文信息栏';date_text=n.attrs.get('datetime','') or text;break
     if published and published>date.today().isoformat():published=None;source='原文日期异常，待核验'
     published_time=None
     if published:
         match=DATE.search(date_text)
         clock=re.match(r'[T\s]+([01]?\d|2[0-3]):([0-5]\d)(?::[0-5]\d)?',date_text[match.end():]) if match else None
         if clock:published_time=f'{published} {int(clock[1]):02d}:{clock[2]}'
-    return {'title':title,'published_at':published,'published_time':published_time,'date_source':source}
+    summary=article_summary(nodes)
+    return {'title':title,'published_at':published,'published_time':published_time,'date_source':source,
+            'summary':summary,'category':classify_notice(title, section, summary)}
+
+
+CATEGORY_RULES = (
+    ('国际交流', r'国际交流|出国|出境|境外|留学|访学|交换生|海外'),
+    ('招生就业', r'招生|就业|招聘|宣讲会|双选会|录取|推免|招聘会'),
+    ('竞赛活动', r'竞赛|比赛|大赛|运动会|文艺|志愿|社团|征文'),
+    ('学术讲座', r'学术|讲座|论坛|研讨会|报告会'),
+    ('教学教务', r'教学|教务|选课|补退选|课程|考试|培养|学籍|毕业|成绩|学位|研究生培养'),
+)
+
+
+def classify_notice(title, section='', summary=''):
+    # Title is strongest evidence; section and body are progressively weaker.
+    for text in (title, section, summary):
+        for category, pattern in CATEGORY_RULES:
+            if re.search(pattern, text):
+                return category
+    return '校园服务'
+
+
+def article_summary(nodes):
+    for n in nodes:
+        if n.tag == 'meta' and (n.attrs.get('name') or n.attrs.get('property') or '').lower() in ('description', 'og:description'):
+            text = normalized(n.attrs.get('content', ''))
+            if text:
+                return text[:240]
+    bodies = [n for n in nodes if re.search(r'(?:^|\s)(?:v_news_content|vsb_content[^\s]*|article[-_]body|news[-_]content)(?:\s|$)', n.cls)]
+    if not bodies:
+        bodies = [n for n in nodes if re.search(r'(?:^|\s)article[-_]content(?:\s|$)', n.cls)]
+    for body in bodies:
+        text = normalized(body.text(lambda n: n.tag in ('nav', 'footer', 'aside', 'h1', 'h2', 'time')
+                                    or is_date(n) or bool(re.search(r'column-name|article-title|news-title', n.cls))))
+        if text:
+            return text[:240]
+    return ''

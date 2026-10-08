@@ -1,3 +1,4 @@
+import http.client
 import ipaddress
 import os
 import ssl
@@ -140,9 +141,11 @@ def _candidate_score(base_url, href, title):
 
 # Shared structural parser used by both lists and detail-page verification.
 try:
-    from .extraction import extract_notices, extract_article_metadata, discover_articles
+    from .extraction import extract_notices, extract_article_metadata, discover_articles, classify_notice
+    from .urls import canonical_url, resolve_page_link, validate_url_syntax, is_attachment
 except ImportError:
-    from extraction import extract_notices, extract_article_metadata, discover_articles
+    from backend.extraction import extract_notices, extract_article_metadata, discover_articles, classify_notice
+    from backend.urls import canonical_url, resolve_page_link, validate_url_syntax, is_attachment
 
 
 # Only the fixed, user-provided directory can use the system proxy's Fake-IP DNS.
@@ -212,6 +215,7 @@ def _resolved_public(host, proxy_compatible=False):
 
 
 def validate_list_url(site_url, list_url):
+    validate_url_syntax(list_url)
     base, target = urllib.parse.urlparse(site_url), urllib.parse.urlparse(list_url)
     if target.scheme not in ("http", "https") or not target.hostname:
         raise ValueError("列表地址必须是 http(s) URL")
@@ -293,13 +297,6 @@ def read_robots(opener, robots_url, max_bytes=128_000):
     return retry_network(lambda: _read_robots_once(opener, robots_url, max_bytes))
 
 
-def canonical_url(url):
-    parsed = urllib.parse.urlsplit(url)
-    query = urllib.parse.urlencode(sorted((k,v) for k,v in urllib.parse.parse_qsl(parsed.query)
-        if not k.lower().startswith('utm_')))
-    return urllib.parse.urlunsplit((parsed.scheme, parsed.netloc.lower(), parsed.path or '/', query, ''))
-
-
 def discover_sections(html, base_url, parent_label='网站首页'):
     """Discover public navigation and pagination, excluding dated article links."""
     parser = LinkParser()
@@ -311,7 +308,9 @@ def discover_sections(html, base_url, parent_label='网站首页'):
         label = ' '.join(label.split())
         if not href or href.startswith(('#', 'javascript:', 'mailto:', 'tel:')):
             continue
-        url = canonical_url(urllib.parse.urljoin(base_url, href))
+        url = resolve_page_link(base_url, href)
+        if not url:
+            continue
         target = urllib.parse.urlsplit(url)
         if url in seen or url in articles or url == canonical_url(base_url):
             continue
@@ -332,7 +331,8 @@ def discover_sections(html, base_url, parent_label='网站首页'):
         if label.isdigit() and not articles:
             continue
         seen.add(url)
-        found.append({'url': url, 'label': parent_label if pagination or label in {'更多','更多>>','查看更多'} else label})
+        found.append({'url': url, 'label': parent_label if pagination or label in {'更多','更多>>','查看更多'} else label,
+                      'kind': 'pagination' if pagination else 'section'})
     return found
 
 
@@ -362,6 +362,11 @@ def fetch_html(opener, url, agent, max_bytes):
     return retry_network(lambda: _fetch_html_once(opener, url, agent, max_bytes))
 
 
+METADATA_VERSION = 5
+CHECKPOINT_PAGES = 10
+CHECKPOINT_SECONDS = 5
+
+
 def collect_site(store, site, max_bytes=750_000, max_pages=80, max_seconds=120):
     root = canonical_url(site['url'])
     proxies = network_proxies()
@@ -373,91 +378,183 @@ def collect_site(store, site, max_bytes=750_000, max_pages=80, max_seconds=120):
     opener.swu_proxies = proxies
     robots = read_robots(opener, robots_url)
     old = store.get_coverage(site['id'])
-    # Persist the frontier: large archives continue on the next manual/scheduled run.
-    parser_updated = old.get('metadata_version') != 4
-    pages = {p['url']: p for p in old['pages']} if (old['pending'] or parser_updated) and old.get('version') == 2 else {}
-    queue = deque(old['pending'])
-    seeds = [{'url': root, 'label': '网站首页'}]
-    if site['list_url']:
-        validate_list_url(root, site['list_url'])
-        seeds.append({'url': canonical_url(site['list_url']), 'label': '自定义入口'})
-    # Refresh entry pages each round so archive backfill does not hide new posts.
-    seed_urls = {p['url'] for p in seeds}
-    queue = deque(seeds + [p for p in queue if p['url'] not in seed_urls])
-    for url in seed_urls:
-        pages.pop(url, None)
-    queued = {p['url'] for p in queue}
-    if parser_updated:
-        # Parser upgrades explicitly retry unverified articles, including URLs
-        # previously marked visited. Do not strand them behind archive traversal.
-        repairs = []
-        for item in store.unverified_articles(site['id']):
-            previous = pages.pop(item['url'], {})
-            repairs.append({**previous, **item, 'kind': 'article', 'label': previous.get('label','历史内容核验')})
-        repair_urls = {p['url'] for p in repairs}
-        queue = deque(repairs + [p for p in queue if p['url'] not in repair_urls])
-        queued = {p['url'] for p in queue}
-    inserted = attempts = 0
-    started = time.monotonic()
-    def checkpoint():
-        store.save_coverage(site['id'], {'pages': list(pages.values()), 'pending': list(queue),
-            'round_pages': attempts, 'round_new': inserted, 'scope': '公开栏目、翻页及文章原文核验', 'version': 2, 'metadata_version': 4})
-    while queue and attempts < max_pages and time.monotonic()-started < max_seconds and not store.crawl_cancel.is_set():
-        item = queue.popleft()
-        url, label = item['url'], item['label']
-        if url in pages:
-            continue
-        attempts += 1
-        page = {**item, 'status': '正常', 'count': 0, 'error': ''}
+    parser_updated = old.get('metadata_version') != METADATA_VERSION
+    refresh = site.get('_refresh', not old['pending'])
+
+    def normalize(item):
+        item = dict(item)
         try:
-            fetch_url = collection_target(root, url)
-            if not robots.can_fetch(agent, fetch_url):
-                raise ValueError('robots.txt 不允许采集此页面')
-            delay = max(.15, float(robots.crawl_delay(agent) or 0))
-            if delay > max_seconds - (time.monotonic()-started):
-                queue.appendleft(item)
-                attempts -= 1
-                break
-            time.sleep(delay)
-            html, effective_url = fetch_html(opener, fetch_url, agent, max_bytes)
-            if item.get('kind') == 'article':
-                metadata = extract_article_metadata(html)
-                if metadata['published_at']:
-                    notice, created = store.upsert_live_notice(site['id'], metadata['title'] or item['title'], metadata.get('published_time') or metadata['published_at'], '校园服务', '', url,
-                        date_verified=True, date_source=metadata['date_source'])
+            item['url'] = canonical_url(collection_target(root, item['url']))
+        except ValueError:
+            pass  # Legacy corrupt queue entries are isolated by the page handler.
+        return item
+
+    pages = {p['url']: p for p in map(normalize, old['pages']) if not is_attachment(p['url'])} if old.get('version') == 2 else {}
+    seeds = []
+    if not site.get('_continuation'):
+        seeds.append({'url': root, 'label': '网站首页', 'kind': 'section'})
+        if site['list_url']:
+            seeds.append({'url': canonical_url(collection_target(root, site['list_url'])), 'label': '自定义入口', 'kind': 'section'})
+    if refresh:
+        seeds += [{k: v for k, v in p.items() if k not in ('status', 'error', 'count')}
+                  for p in pages.values() if p.get('kind') == 'section']
+    retries = [p for p in pages.values() if p['status'] in ('失败', '延迟') or (refresh and p['status'] == '待核验')]
+    retry_budget = max(1, max_pages // 4) if max_pages > 1 or not site.get('_continuation') else 0
+    retries = sorted(retries, key=lambda p: p.get('fetch_attempts', 0))[:retry_budget]
+    for item in retries:
+        if item['status'] == '待核验':
+            pages.pop(item['url'], None)
+    repairs = []
+    if parser_updated:
+        for item in store.unverified_articles(site['id'], include_verified=True):
+            item = normalize(item)
+            if is_attachment(item['url']):
+                continue
+            previous = pages.pop(item['url'], {})
+            repairs.append({**previous, **item, 'kind': 'article', 'label': previous.get('label', '历史内容核验')})
+    # One repair leads an upgrade batch; entry scans then surface new posts ahead
+    # of the remaining archive. Old successful article identities stay visited.
+    frontier = repairs[:1] + seeds + retries + repairs[1:] + list(map(normalize, old['pending']))
+    queue, queued = deque(), set()
+    pending_items = {}
+    for item in frontier:
+        if is_attachment(item['url']):
+            continue
+        if item['url'] not in queued:
+            queued.add(item['url'])
+            queue.append(item)
+            pending_items[item['url']] = item
+        else:
+            existing = pending_items[item['url']]
+            if item.get('incremental'):
+                existing['incremental'] = True
+            contexts = list(item.get('sections', []))
+            if item.get('section_url'):
+                contexts.append({'url': item['section_url'], 'label': item['label']})
+            for context in contexts:
+                if context not in existing.setdefault('sections', []):
+                    existing['sections'].append(context)
+    for item in seeds:
+        pages.pop(item['url'], None)
+    attempted = set()
+    inserted = attempts = round_success = round_failed = round_unverified = 0
+    started = last_saved = time.monotonic()
+    saved_attempts = 0
+
+    def checkpoint():
+        nonlocal last_saved, saved_attempts
+        store.save_coverage(site['id'], {'pages': list(pages.values()), 'pending': list(queue),
+            'round_pages': attempts, 'round_new': inserted, 'round_success': round_success,
+            'round_failed': round_failed, 'round_unverified': round_unverified,
+            'scope': '公开栏目增量扫描、历史回填及文章原文核验', 'version': 2, 'metadata_version': METADATA_VERSION})
+        last_saved = time.monotonic()
+        saved_attempts = attempts
+
+    try:
+        while queue and attempts < max_pages and time.monotonic() - started < max_seconds and not store.crawl_cancel.is_set():
+            item = queue.popleft()
+            url, label = item['url'], item['label']
+            pending_items.pop(url, None)
+            if url in attempted or (url in pages and pages[url]['status'] in ('正常', '待核验')):
+                continue
+            attempts += 1
+            attempted.add(url)
+            page = {**item, 'status': '正常', 'count': 0, 'error': '',
+                    'fetch_attempts': pages.get(url, item).get('fetch_attempts', 0) + 1}
+            try:
+                fetch_url = collection_target(root, url)
+                if is_attachment(fetch_url):
+                    raise ValueError('附件链接不作为通知文章采集')
+                if not robots.can_fetch(agent, fetch_url):
+                    raise ValueError('robots.txt 不允许采集此页面')
+                delay = max(.15, float(robots.crawl_delay(agent) or 0))
+                if delay > max_seconds - (time.monotonic() - started):
+                    queue.appendleft(item)
+                    attempts -= 1
+                    break
+                time.sleep(delay)
+                html, effective_url = fetch_html(opener, fetch_url, agent, max_bytes)
+                effective_url = canonical_url(collection_target(root, effective_url))
+                if item.get('kind') == 'article':
+                    metadata = extract_article_metadata(html, label)
+                    title = metadata['title'] or item['title']
+                    published = metadata.get('published_time') or metadata['published_at'] or ''
+                    category = classify_notice(title, label, metadata['summary'])
+                    notice, created = store.upsert_live_notice(site['id'], title, published, category, metadata['summary'], url,
+                        date_verified=bool(published), date_source=metadata['date_source'] or '原文未识别到发布时间', metadata_extracted=True)
+                    contexts = item.get('sections', [])
                     if item.get('section_url'):
-                        store.add_notice_section(notice['id'], item['section_url'], label)
-                    inserted += int(created); page['count'] = 1
+                        contexts = contexts + [{'url': item['section_url'], 'label': label}]
+                    for context in contexts:
+                        store.add_notice_section(notice['id'], context['url'], context['label'])
+                    inserted += int(created)
+                    page['count'] = 1
+                    if not published:
+                        page['status'] = '待核验'
+                        page['error'] = '原文未识别到可靠发布时间，保留已有列表日期'
                 else:
-                    notice, created = store.upsert_live_notice(site['id'], metadata['title'] or item['title'], '', '校园服务', '', url, date_source='原文未识别到发布时间')
-                    if item.get('section_url'):
-                        store.add_notice_section(notice['id'], item['section_url'], label)
-                    inserted += int(created); page['count'] = 1
-                    page['status'] = '待核验'
-                    page['error'] = '原文未识别到可靠发布时间，不使用正文活动日期代替'
-            else:
-                dated = extract_notices(html, effective_url)
-                for title, published, article_url in dated:
-                    notice, created = store.upsert_live_notice(site['id'], title, published, '校园服务', '', canonical_url(article_url))
-                    store.add_notice_section(notice['id'], effective_url, label)
-                    inserted += int(created); page['count'] += 1
-                children = discover_sections(html, effective_url, label)
-                articles = discover_articles(html, effective_url)
-                known = {x['url'] for x in articles}
-                articles += [{'url':u,'title':t,'kind':'article'} for t,d,u in dated if u not in known]
-                children += [{**child, 'label': label, 'section_url': effective_url} for child in articles]
-                for child in children:
-                    if child['url'] not in queued and child['url'] not in pages:
-                        queued.add(child['url']); queue.append(child)
-            page['effective_url'] = effective_url
-        except (ValueError, OSError, LookupError) as exc:
-            page['status'] = crawl_failure_status(exc)
-            page['error'] = str(exc)
-        pages[url] = page
+                    dated = extract_notices(html, effective_url)
+                    fresh_content = False
+                    for title, published, article_url in dated:
+                        notice, created = store.upsert_live_notice(site['id'], title, published, classify_notice(title, label), '', article_url)
+                        store.add_notice_section(notice['id'], effective_url, label)
+                        inserted += int(created)
+                        fresh_content = fresh_content or created
+                        page['count'] += 1
+                    sections = discover_sections(html, effective_url, label)
+                    articles = discover_articles(html, effective_url)
+                    known = {x['url'] for x in articles}
+                    articles += [{'url': u, 'title': t, 'kind': 'article'} for t, d, u in dated if u not in known]
+                    notice_ids = {a['url']: store.find_live_notice_id(site['id'], a['url']) for a in articles}
+                    fresh_content = fresh_content or any(n is None for n in notice_ids.values())
+                    children = sections + [{**child, 'label': label, 'section_url': effective_url,
+                                            'sections': [{'url': effective_url, 'label': label}]} for child in articles]
+                    dated_urls = {u for t, d, u in dated}
+                    priority = []
+                    for child in map(normalize, children):
+                        child_url = child['url']
+                        if child.get('kind') == 'article':
+                            notice_id = notice_ids[child_url]
+                            if notice_id:
+                                store.add_notice_section(notice_id, effective_url, label)
+                            if child_url in pending_items:
+                                existing = pending_items[child_url]
+                                contexts = existing.setdefault('sections', [])
+                                context = {'url': effective_url, 'label': label}
+                                if context not in contexts:
+                                    contexts.append(context)
+                        if child.get('kind') == 'pagination' and fresh_content and (refresh or item.get('incremental')):
+                            child['incremental'] = True
+                            if child_url in pending_items:
+                                pending_items[child_url]['incremental'] = True
+                            if child_url not in attempted:
+                                pages.pop(child_url, None)
+                        if refresh and child.get('kind') == 'section' and child_url not in attempted and child_url not in queued:
+                            pages.pop(child_url, None)
+                        if child_url in queued or child_url in pages:
+                            continue
+                        queued.add(child_url)
+                        pending_items[child_url] = child
+                        if child.get('kind') == 'section' or child.get('incremental') or (child.get('kind') == 'article' and child_url not in dated_urls):
+                            priority.append(child)
+                        else:
+                            queue.append(child)
+                    priority.sort(key=lambda child: child.get('kind') != 'article')
+                    queue.extendleft(reversed(priority))
+                page['effective_url'] = effective_url
+                round_success += 1
+                round_unverified += int(page['status'] == '待核验')
+            except (ValueError, OSError, LookupError, http.client.HTTPException) as exc:
+                page['status'] = crawl_failure_status(exc)
+                page['error'] = str(exc)
+                round_failed += 1
+            pages[url] = page
+            if attempts - saved_attempts >= CHECKPOINT_PAGES or time.monotonic() - last_saved >= CHECKPOINT_SECONDS:
+                checkpoint()
+    finally:
         checkpoint()
-    checkpoint()
-    if not any(p['status'] == '正常' for p in pages.values()):
-        raise ValueError(next(iter(pages.values()))['error'] if pages else '未检查任何页面')
+    if not round_success and round_failed:
+        raise ValueError(next(p['error'] for p in pages.values() if p['status'] in ('失败', '延迟')))
     return inserted
 
 
@@ -478,7 +575,9 @@ def run_collection(store, site_id=None, claimed=False):
             futures = {}
             while waiting or futures:
                 while waiting and len(futures)<4 and not store.crawl_cancel.is_set():
-                    site=waiting.popleft();futures[executor.submit(collect_site,store,site)]=site
+                    site=waiting.popleft()
+                    batch_site={**site, '_refresh': processed[site['id']] == 0, '_continuation': processed[site['id']] > 0}
+                    futures[executor.submit(collect_site,store,batch_site)]=site
                 if not futures:break
                 ready,_=wait(futures,timeout=1,return_when=FIRST_COMPLETED)
                 for future in ready:
@@ -486,13 +585,14 @@ def run_collection(store, site_id=None, claimed=False):
                     try:
                         count=future.result();totals[site['id']]+=count
                         report=store.get_coverage(site['id'])
-                        failed=sum(p['status']!='正常' for p in report['pages'])
+                        failed=sum(p['status'] in ('失败', '延迟') for p in report['pages'])
+                        unverified=sum(p['status']=='待核验' for p in report['pages'])
                         pending=len(report['pending'])
                         processed[site['id']]+=report.get('round_pages',0)
                         limit=processed[site['id']]>=10000
                         again=pending and report.get('round_pages',0)>0 and not limit and not store.crawl_cancel.is_set()
-                        note='；'.join(x for x in [f'{failed} 个页面异常或日期待核验' if failed else '', f'{pending} 个页面待继续' if pending else '', '本次已达10000页保护上限，进度已保存' if limit else ''] if x)
-                        store.update_site_result(site['id'],'延迟' if failed or pending else '正常',note or None,totals[site['id']])
+                        note='；'.join(x for x in [f'{failed} 个页面访问异常' if failed else '', f'{unverified} 篇日期待核验' if unverified else '', f'{pending} 个页面待继续' if pending else '', '本次已达10000页保护上限，进度已保存' if limit else ''] if x)
+                        store.update_site_result(site['id'],'延迟' if failed else '正常',note or None,totals[site['id']])
                         if again:waiting.append(site)
                         else:completed+=1
                     except Exception as exc:
