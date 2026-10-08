@@ -1,7 +1,7 @@
 import React,{useEffect,useId,useRef,useState} from 'react';
-import {House,Bell,CalendarDays,Star,Grid2X2,Settings} from 'lucide-react';
+import {House,Bell,CalendarDays,Star,Grid2X2,GraduationCap,Settings} from 'lucide-react';
 import {dockInfluence} from '../data/dockMotion.js';
-const entries=[[House,'首页','home'],[Bell,'通知','notices'],[CalendarDays,'日程','calendar'],[Star,'订阅','subscriptions'],[Grid2X2,'来源','sources'],[Settings,'设置','settings']];
+const entries=[[House,'首页','home'],[Bell,'通知','notices'],[CalendarDays,'日程','calendar'],[Star,'订阅','subscriptions'],[Grid2X2,'来源','sources'],[GraduationCap,'赛事','competitions'],[Settings,'设置','settings']];
 export function Dock({active,onNavigate,quiet,children}){
  const [expanded,setExpanded]=useState(false),id=useId();
  const shell=useRef(null),handle=useRef(null),host=useRef(null),frame=useRef(null),pointer=useRef(null),keyboardFocus=useRef(false),touch=useRef(false);

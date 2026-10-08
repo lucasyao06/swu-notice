@@ -19,6 +19,7 @@ test-results/
 *.pid
 swu-notice-monitor/data/*
 !swu-notice-monitor/data/sites.json
+!swu-notice-monitor/data/competitions.json
 # Local configuration and editor/system files
 .env
 .env.*
@@ -30,3 +31,5 @@ swu-notice-monitor/data/*
 # Generated QA captures
 **/docs/**/*.png
 **/docs/**/*.json
+
+!swu-notice-monitor/data/college_competition_rules.json

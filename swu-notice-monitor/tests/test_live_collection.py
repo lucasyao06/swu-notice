@@ -13,7 +13,7 @@ class LiveCollectionRegressionTests(unittest.TestCase):
 
     def test_registered_https_supports_configured_proxy_fake_dns(self):
         from backend.collector import validate_fetch_url
-        with patch('socket.getaddrinfo',return_value=FAKE),patch('urllib.request.getproxies',return_value={'https':'http://127.0.0.1:7890'}):
+        with patch.dict('os.environ',{'SWU_NETWORK_MODE':'auto'}),patch('socket.getaddrinfo',return_value=FAKE),patch('urllib.request.getproxies',return_value={'https':'http://127.0.0.1:7890'}),patch('urllib.request.proxy_bypass',return_value=False):
             validate_fetch_url('https://dzb.swu.edu.cn/')
             for url in ['https://unknown.example/','http://dzb.swu.edu.cn/']:
                 with self.assertRaises(ValueError):validate_fetch_url(url)
@@ -21,7 +21,7 @@ class LiveCollectionRegressionTests(unittest.TestCase):
     def test_private_targets_stay_blocked_and_nonstandard_ports_rejected(self):
         from backend.collector import validate_fetch_url
         for ip in ['127.0.0.1','10.0.0.1','192.168.1.1','169.254.169.254','::1']:
-            with patch('socket.getaddrinfo',return_value=[(socket.AF_INET,1,6,'',(ip,443))]),patch('urllib.request.getproxies',return_value={'https':'http://127.0.0.1:7890'}):
+            with patch.dict('os.environ',{'SWU_NETWORK_MODE':'auto'}),patch('socket.getaddrinfo',return_value=[(socket.AF_INET,1,6,'',(ip,443))]),patch('urllib.request.getproxies',return_value={'https':'http://127.0.0.1:7890'}),patch('urllib.request.proxy_bypass',return_value=False):
                 with self.assertRaises(ValueError):validate_fetch_url('https://dzb.swu.edu.cn/')
         for url in ['https://user:pass@dzb.swu.edu.cn/','https://dzb.swu.edu.cn:8080/','https://127.0.0.1/','https://dzb.swu.edu.cn.evil.example/']:
             with self.assertRaises(ValueError):validate_list_url('https://dzb.swu.edu.cn/',url)
@@ -32,7 +32,7 @@ class LiveCollectionRegressionTests(unittest.TestCase):
 
     def test_fake_ip_exception_does_not_apply_to_proxy_bypass(self):
         from backend.collector import validate_fetch_url
-        with patch('socket.getaddrinfo',return_value=FAKE),patch('urllib.request.getproxies',return_value={'https':'http://127.0.0.1:7890'}),patch('urllib.request.proxy_bypass',return_value=True):
+        with patch.dict('os.environ',{'SWU_NETWORK_MODE':'auto'}),patch('socket.getaddrinfo',return_value=FAKE),patch('urllib.request.getproxies',return_value={'https':'http://127.0.0.1:7890'}),patch('urllib.request.proxy_bypass',return_value=True):
             with self.assertRaises(ValueError):validate_fetch_url('https://dzb.swu.edu.cn/')
 
     def test_html_fetch_keeps_redirect_base_url(self):
@@ -54,7 +54,7 @@ class LiveCollectionRegressionTests(unittest.TestCase):
 
     def test_explicit_standard_port_uses_exact_proxy_bypass_target(self):
         from backend.collector import validate_fetch_url
-        with patch('socket.getaddrinfo',return_value=FAKE),patch('urllib.request.getproxies',return_value={'https':'http://127.0.0.1:7890'}),patch('urllib.request.proxy_bypass',side_effect=lambda host:host=='dzb.swu.edu.cn:443'):
+        with patch.dict('os.environ',{'SWU_NETWORK_MODE':'auto'}),patch('socket.getaddrinfo',return_value=FAKE),patch('urllib.request.getproxies',return_value={'https':'http://127.0.0.1:7890'}),patch('urllib.request.proxy_bypass',side_effect=lambda host:host=='dzb.swu.edu.cn:443'):
             with self.assertRaises(ValueError):validate_fetch_url('https://dzb.swu.edu.cn:443/')
 
     def test_missing_year_is_not_invented(self):

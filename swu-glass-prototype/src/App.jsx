@@ -13,6 +13,7 @@ import {useNoticeData} from './hooks/useNoticeData.js';
 import {showReadingState} from './data/reading.js';
 import {CATEGORIES} from './data/adapters.js';
 import {SubscriptionsPage,SourcesPage,SettingsPage,Pager} from './pages/WorkspacePages.jsx';
+import {CompetitionsPage} from './pages/CompetitionsPage.jsx';
 
 function DateCard({onOpen,quiet,dark}) {
  const host=useRef(null);
@@ -49,7 +50,7 @@ function Notice({item,favorites,onFavorite,onOpen,large=false,pending=false,show
  </article>
 }
 export function App(){
- const [view,setView]=useState('home'),[query,setQuery]=useState(''),[search,setSearch]=useState(''),[tab,setTab]=useState('all');
+ const [view,setView]=useState(()=>new URLSearchParams(window.location.search).get('view')==='competitions'?'competitions':'home'),[query,setQuery]=useState(''),[search,setSearch]=useState(''),[tab,setTab]=useState('all');
  const [mode,setModeState]=useState(()=>new URLSearchParams(location.search).get('mode')==='demo'?'demo':'live');
  const calendar=useCalendarData(mode);
  const [calendarRequest,setCalendarRequest]=useState(null);
@@ -98,7 +99,7 @@ export function App(){
   if(quiet||before===view)return;
   const target=document.querySelector('.content-grid');
   if(!target)return;
-  const order=['home','notices','calendar','subscriptions','sources','settings'];
+  const order=['home','notices','calendar','subscriptions','sources','competitions','settings'];
   const direction=order.indexOf(view)>order.indexOf(before)?1:-1;
   const animation=target.animate([{transform:`translateX(${direction*72}px)`,opacity:0},{transform:'translateX(0)',opacity:1}],{duration:320,easing:'cubic-bezier(.22,1,.36,1)'});
   transitionAnimation.current=animation;
@@ -135,7 +136,7 @@ export function App(){
  const isWorkspace=['calendar','subscriptions','sources','settings'].includes(view);
  const toggle=(arr,set,v)=>set(arr.includes(v)?arr.filter(x=>x!==v):[...arr,v]);
  const row=(n,large=false)=><Notice key={n.id} item={n} large={large} showRead={showReadingState(n,subscriptions)} pending={data.pending} favorites={favorites} onFavorite={favorite} onOpen={openNotice}/>;
- return <div className={`app ${view==='home'?'home-view':''} ${view==='calendar'?'schedule-view':''} ${quiet?'still':''} light-${phase}`} >
+ return <div className={`app ${view==='home'?'home-view':''} ${view==='calendar'?'schedule-view':''} ${view==='competitions'?'competition-view':''} ${quiet?'still':''} light-${phase}`} >
  <div className="campus-scene" aria-hidden="true"/><AmbientLight phase={phase}/>
  <a className="skip" href="#content">{view==='calendar'?'跳转到日程':'跳转到通知'}</a>
  {view!=='calendar'&&<header className="topbar"><div className="topbar-inner"><button className="brand" onClick={()=>nav('home')} aria-label="西南大学通知聚合平台首页"><img className="school-logo" src="/assets/swu-logo-horizontal.png" alt="西南大学 SOUTHWEST UNIVERSITY"/><span className="brand-rule"/><span className="product">通知聚合平台<small>SWU Notice</small></span></button>
@@ -144,7 +145,7 @@ export function App(){
  <main className="page" id="content">{view==='home'&&<section className="hero"><div className="hero-photo"/><div className="hero-copy"><div className="eyebrow">校园资讯，与你有关</div><h1>重要通知，不再错过</h1><p>汇聚校园通知，让与你相关的信息先一步抵达。</p></div><DateCard dark={phase==='moonlight'} quiet={quiet} onOpen={()=>nav('calendar')}/></section>}
  {view!=='calendar'&&data.error&&<div className="connection-error" role="alert">{data.error}<button onClick={data.refresh}>重试</button></div>}
  {view!=='calendar'&&data.loading&&<div className="loading-status" role="status">正在加载…</div>}
- {isWorkspace?<section className="content-grid workspace-page" aria-label={view==='subscriptions'?'订阅页面':view==='sources'?'来源页面':view==='calendar'?'日程页面':'设置页面'}>
+ {view==='competitions'?<CompetitionsPage key={mode} mode={mode}/>:isWorkspace?<section className="content-grid workspace-page" aria-label={view==='subscriptions'?'订阅页面':view==='sources'?'来源页面':view==='calendar'?'日程页面':'设置页面'}>
  {view==='subscriptions'&&data.ready&&<SubscriptionsPage key={mode} sites={units} subscriptions={subscriptions} pending={data.pending} mode={mode} onSave={saveSubscriptions}/>}
  {view==='sources'&&<SourcesPage key={mode} sites={units} subscriptions={subscriptions} pending={data.pending} mode={mode} onFollow={follow}/>}
  {view==='calendar'&&<CalendarPage key={mode} calendar={calendar} quiet={quiet} request={calendarRequest} onRequestConsumed={()=>setCalendarRequest(null)} onFeedback={tell}/>}

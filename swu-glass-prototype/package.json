@@ -8,7 +8,7 @@
     "build": "vite build && node scripts/prepare-sites-build.mjs",
     "preview": "vite preview",
     "test:sites": "node --test tests/sites-worker.test.mjs",
-    "test:data": "node --test tests/unit/*.test.mjs",
+    "test:data": "node scripts/test-data.mjs",
     "test:integration": "node tests/backend-integration.cjs"
   },
   "dependencies": {

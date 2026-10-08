@@ -1,4 +1,5 @@
 # API contract (all endpoints under /api)
+Competition endpoints use the separate `/api/competition/` namespace. See [competition module contract](competition-module.md#接口); they do not accept campus `mode` or affect campus subscriptions/messages/settings. Competition demo state is frontend-only.
 Default port 8765. JSON. Single local user. All notice datasets selected by `mode=demo|live` (default demo).
 
 - GET /health -> {ok:true}

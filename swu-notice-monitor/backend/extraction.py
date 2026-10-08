@@ -128,7 +128,7 @@ def extract_notices(html,base_url):
             seen.add(url);out.append((title,published,url))
     return out
 
-def extract_article_metadata(html, section=''):
+def extract_article_metadata(html, section='', *, allow_unlabelled_time=True):
     root=Tree(html).root;nodes=list(root.walk());title='';published=None;source='';date_text=''
     def strict_body(n):
         return bool(re.search(r'(?:^|\s)(?:v_news_content|vsb_content[^\s]*|article[-_]body|news[-_]content|summary|intro|description)(?:\s|$)',n.cls))
@@ -165,7 +165,7 @@ def extract_article_metadata(html, section=''):
         for n in header:
             text=normalized(n.text())
             if len(text)>250 or any(strict_body(x) for x in n.walk()):continue
-            if (is_date(n) and n.attrs.get('datetime')) or (re.search(r'作者|审核|浏览|来源',text) and len(list(dates(text)))==1):
+            if (allow_unlabelled_time and is_date(n) and n.attrs.get('datetime')) or (re.search(r'作者|审核|浏览|来源',text) and len(list(dates(text)))==1):
                 candidate=node_date(n)
                 if candidate:
                     published=candidate;source='原文信息栏';date_text=n.attrs.get('datetime','') or text;break

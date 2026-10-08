@@ -2,6 +2,7 @@ import json, os, socket, subprocess, sys, tempfile, time, unittest, urllib.reque
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 class ProcessRecoveryTest(unittest.TestCase):
+ @unittest.skipUnless(os.name == 'posix', 'requires graceful POSIX SIGTERM; Windows terminate uses TerminateProcess')
  def test_sigterm_and_restart_resume_same_site(self):
   try:
    with socket.socket() as sock:sock.bind(('127.0.0.1',0));port=sock.getsockname()[1]
